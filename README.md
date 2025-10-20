@@ -85,7 +85,7 @@ The workflow begins with the controller initiating the crawler, which navigates 
 ## Usage
 Run the bot:
 ```bash
-uv run src/main.py
+uv run -m src.main
 ```
 
 Output will be saved to:
