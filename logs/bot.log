@@ -3436,3 +3436,237 @@ Traceback (most recent call last):
   File "/home/siraj/.local/share/uv/python/cpython-3.12.12-linux-x86_64-gnu/lib/python3.12/threading.py", line 355, in wait
     waiter.acquire()
 KeyboardInterrupt
+2025-10-20 16:37:57,207 - INFO - Starting Cyber Bot
+2025-10-20 16:37:57,207 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:37:57,207 - INFO - ====== WebDriver manager ======
+2025-10-20 16:37:57,293 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:37:57,538 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:37:57,680 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:37:58,733 - INFO - Navigator initialized
+2025-10-20 16:37:58,733 - INFO - Navigating to https://cyberskyline.com/competition/dashboard
+2025-10-20 16:38:05,657 - INFO - Authentication successful
+2025-10-20 16:38:12,243 - INFO - Entered Gymnasium
+2025-10-20 16:38:12,299 - INFO - Found 11 modules
+2025-10-20 16:38:12,330 - INFO - [Thread 1/11] Starting: Getting Started
+1 Challenges8 Questions100% Completion
+2025-10-20 16:38:12,331 - INFO - ====== WebDriver manager ======
+2025-10-20 16:38:12,344 - INFO - [Thread 2/11] Starting: Open Source Intelligence
+8 Challenges31 Questions100% Completion
+2025-10-20 16:38:12,344 - INFO - ====== WebDriver manager ======
+2025-10-20 16:38:12,358 - INFO - [Thread 3/11] Starting: Cryptography
+8 Challenges14 Questions100% Completion
+2025-10-20 16:38:12,358 - INFO - ====== WebDriver manager ======
+2025-10-20 16:38:12,372 - INFO - [Thread 4/11] Starting: Password Cracking
+7 Challenges37 Questions40.54% Completion
+2025-10-20 16:38:12,372 - INFO - ====== WebDriver manager ======
+2025-10-20 16:38:12,440 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:12,458 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:12,474 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:12,483 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:12,554 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:12,581 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:12,588 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:12,617 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:12,713 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:38:12,749 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:38:12,777 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:38:12,781 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:38:14,968 - INFO - Navigator initialized
+2025-10-20 16:38:14,973 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:38:14,986 - INFO - Shutting down crawler...
+2025-10-20 16:38:14,986 - ERROR - Crawler failed for https://cyberskyline.com/world/684c235bdbe1ed8e2a7f7e69: 'WebCrawler' object has no attribute 'own_navigator'
+Traceback (most recent call last):
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 253, in crawl_site
+    self.close()
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 240, in close
+    if self.own_navigator:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'WebCrawler' object has no attribute 'own_navigator'. Did you mean: 'navigator'?
+2025-10-20 16:38:14,987 - INFO - Shutting down crawler...
+2025-10-20 16:38:14,988 - ERROR - [Thread 1/11] Error Getting Started
+1 Challenges8 Questions100% Completion: 'WebCrawler' object has no attribute 'own_navigator'
+2025-10-20 16:38:14,989 - INFO - [Thread 5/11] Starting: Forensics
+6 Challenges21 Questions0% Completion
+2025-10-20 16:38:14,989 - INFO - ====== WebDriver manager ======
+2025-10-20 16:38:14,989 - INFO - Navigator initialized
+2025-10-20 16:38:14,997 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:38:15,002 - INFO - Shutting down crawler...
+2025-10-20 16:38:15,002 - ERROR - Crawler failed for https://cyberskyline.com/world/684c235bdbe1ed8e2a7f7e69: 'WebCrawler' object has no attribute 'own_navigator'
+Traceback (most recent call last):
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 253, in crawl_site
+    self.close()
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 240, in close
+    if self.own_navigator:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'WebCrawler' object has no attribute 'own_navigator'. Did you mean: 'navigator'?
+2025-10-20 16:38:15,004 - INFO - Shutting down crawler...
+2025-10-20 16:38:15,004 - ERROR - [Thread 3/11] Error Cryptography
+8 Challenges14 Questions100% Completion: 'WebCrawler' object has no attribute 'own_navigator'
+2025-10-20 16:38:15,004 - INFO - [Thread 6/11] Starting: Log Analysis
+8 Challenges59 Questions0% Completion
+2025-10-20 16:38:15,005 - INFO - ====== WebDriver manager ======
+2025-10-20 16:38:15,065 - INFO - Navigator initialized
+2025-10-20 16:38:15,074 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:38:15,083 - INFO - Shutting down crawler...
+2025-10-20 16:38:15,083 - ERROR - Crawler failed for https://cyberskyline.com/world/684c235bdbe1ed8e2a7f7e69: 'WebCrawler' object has no attribute 'own_navigator'
+Traceback (most recent call last):
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 253, in crawl_site
+    self.close()
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 240, in close
+    if self.own_navigator:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'WebCrawler' object has no attribute 'own_navigator'. Did you mean: 'navigator'?
+2025-10-20 16:38:15,085 - INFO - Shutting down crawler...
+2025-10-20 16:38:15,085 - ERROR - [Thread 2/11] Error Open Source Intelligence
+8 Challenges31 Questions100% Completion: 'WebCrawler' object has no attribute 'own_navigator'
+2025-10-20 16:38:15,085 - INFO - [Thread 7/11] Starting: Network Traffic Analysis
+8 Challenges45 Questions0% Completion
+2025-10-20 16:38:15,086 - INFO - ====== WebDriver manager ======
+2025-10-20 16:38:15,140 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:15,156 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:15,185 - INFO - Navigator initialized
+2025-10-20 16:38:15,193 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:38:15,200 - INFO - Shutting down crawler...
+2025-10-20 16:38:15,200 - ERROR - Crawler failed for https://cyberskyline.com/world/684c235bdbe1ed8e2a7f7e69: 'WebCrawler' object has no attribute 'own_navigator'
+Traceback (most recent call last):
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 253, in crawl_site
+    self.close()
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 240, in close
+    if self.own_navigator:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'WebCrawler' object has no attribute 'own_navigator'. Did you mean: 'navigator'?
+2025-10-20 16:38:15,201 - INFO - Shutting down crawler...
+2025-10-20 16:38:15,201 - ERROR - [Thread 4/11] Error Password Cracking
+7 Challenges37 Questions40.54% Completion: 'WebCrawler' object has no attribute 'own_navigator'
+2025-10-20 16:38:15,201 - INFO - [Thread 8/11] Starting: Scanning & Reconnaissance
+4 Challenges20 Questions0% Completion
+2025-10-20 16:38:15,201 - INFO - ====== WebDriver manager ======
+2025-10-20 16:38:15,229 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:15,258 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:15,297 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:15,317 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:15,424 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:15,492 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:38:15,545 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:15,566 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:38:15,608 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:38:15,723 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:38:17,273 - INFO - Navigator initialized
+2025-10-20 16:38:17,276 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:38:17,278 - INFO - Shutting down crawler...
+2025-10-20 16:38:17,278 - ERROR - Crawler failed for https://cyberskyline.com/world/684c235bdbe1ed8e2a7f7e69: 'WebCrawler' object has no attribute 'own_navigator'
+Traceback (most recent call last):
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 253, in crawl_site
+    self.close()
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 240, in close
+    if self.own_navigator:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'WebCrawler' object has no attribute 'own_navigator'. Did you mean: 'navigator'?
+2025-10-20 16:38:17,280 - INFO - Shutting down crawler...
+2025-10-20 16:38:17,280 - ERROR - [Thread 5/11] Error Forensics
+6 Challenges21 Questions0% Completion: 'WebCrawler' object has no attribute 'own_navigator'
+2025-10-20 16:38:17,280 - INFO - [Thread 9/11] Starting: Web Application Exploitation
+6 Challenges13 Questions0% Completion
+2025-10-20 16:38:17,280 - INFO - ====== WebDriver manager ======
+2025-10-20 16:38:17,385 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:17,493 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:17,508 - INFO - Navigator initialized
+2025-10-20 16:38:17,511 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:38:17,515 - INFO - Shutting down crawler...
+2025-10-20 16:38:17,515 - ERROR - Crawler failed for https://cyberskyline.com/world/684c235bdbe1ed8e2a7f7e69: 'WebCrawler' object has no attribute 'own_navigator'
+Traceback (most recent call last):
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 253, in crawl_site
+    self.close()
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 240, in close
+    if self.own_navigator:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'WebCrawler' object has no attribute 'own_navigator'. Did you mean: 'navigator'?
+2025-10-20 16:38:17,516 - INFO - Shutting down crawler...
+2025-10-20 16:38:17,516 - ERROR - [Thread 7/11] Error Network Traffic Analysis
+8 Challenges45 Questions0% Completion: 'WebCrawler' object has no attribute 'own_navigator'
+2025-10-20 16:38:17,516 - INFO - [Thread 10/11] Starting: Wireless Access Exploitation
+3 Challenges21 Questions0% Completion
+2025-10-20 16:38:17,517 - INFO - ====== WebDriver manager ======
+2025-10-20 16:38:17,524 - INFO - Navigator initialized
+2025-10-20 16:38:17,527 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:38:17,531 - INFO - Shutting down crawler...
+2025-10-20 16:38:17,531 - ERROR - Crawler failed for https://cyberskyline.com/world/684c235bdbe1ed8e2a7f7e69: 'WebCrawler' object has no attribute 'own_navigator'
+Traceback (most recent call last):
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 253, in crawl_site
+    self.close()
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 240, in close
+    if self.own_navigator:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'WebCrawler' object has no attribute 'own_navigator'. Did you mean: 'navigator'?
+2025-10-20 16:38:17,532 - INFO - Shutting down crawler...
+2025-10-20 16:38:17,532 - ERROR - [Thread 6/11] Error Log Analysis
+8 Challenges59 Questions0% Completion: 'WebCrawler' object has no attribute 'own_navigator'
+2025-10-20 16:38:17,532 - INFO - [Thread 11/11] Starting: Enumeration & Exploitation
+7 Challenges10 Questions0% Completion
+2025-10-20 16:38:17,533 - INFO - ====== WebDriver manager ======
+2025-10-20 16:38:17,604 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:38:17,611 - INFO - Navigator initialized
+2025-10-20 16:38:17,619 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:38:17,625 - INFO - Shutting down crawler...
+2025-10-20 16:38:17,625 - ERROR - Crawler failed for https://cyberskyline.com/world/684c235bdbe1ed8e2a7f7e69: 'WebCrawler' object has no attribute 'own_navigator'
+Traceback (most recent call last):
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 253, in crawl_site
+    self.close()
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 240, in close
+    if self.own_navigator:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'WebCrawler' object has no attribute 'own_navigator'. Did you mean: 'navigator'?
+2025-10-20 16:38:17,629 - INFO - Shutting down crawler...
+2025-10-20 16:38:17,629 - ERROR - [Thread 8/11] Error Scanning & Reconnaissance
+4 Challenges20 Questions0% Completion: 'WebCrawler' object has no attribute 'own_navigator'
+2025-10-20 16:38:17,642 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:17,659 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:17,761 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:17,874 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:38:18,022 - INFO - Get LATEST chromedriver version for chromium
+2025-10-20 16:38:18,137 - INFO - Driver [/home/siraj/.wdm/drivers/chromedriver/linux64/141.0.7390.78/chromedriver-linux64/chromedriver] found in cache
+2025-10-20 16:38:18,736 - INFO - Navigator initialized
+2025-10-20 16:38:18,739 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:38:18,745 - INFO - Shutting down crawler...
+2025-10-20 16:38:18,745 - ERROR - Crawler failed for https://cyberskyline.com/world/684c235bdbe1ed8e2a7f7e69: 'WebCrawler' object has no attribute 'own_navigator'
+Traceback (most recent call last):
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 253, in crawl_site
+    self.close()
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 240, in close
+    if self.own_navigator:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'WebCrawler' object has no attribute 'own_navigator'. Did you mean: 'navigator'?
+2025-10-20 16:38:18,747 - INFO - Shutting down crawler...
+2025-10-20 16:38:18,747 - ERROR - [Thread 9/11] Error Web Application Exploitation
+6 Challenges13 Questions0% Completion: 'WebCrawler' object has no attribute 'own_navigator'
+2025-10-20 16:38:19,175 - INFO - Navigator initialized
+2025-10-20 16:38:19,178 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:38:19,180 - INFO - Shutting down crawler...
+2025-10-20 16:38:19,180 - ERROR - Crawler failed for https://cyberskyline.com/world/684c235bdbe1ed8e2a7f7e69: 'WebCrawler' object has no attribute 'own_navigator'
+Traceback (most recent call last):
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 253, in crawl_site
+    self.close()
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 240, in close
+    if self.own_navigator:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'WebCrawler' object has no attribute 'own_navigator'. Did you mean: 'navigator'?
+2025-10-20 16:38:19,182 - INFO - Shutting down crawler...
+2025-10-20 16:38:19,182 - ERROR - [Thread 11/11] Error Enumeration & Exploitation
+7 Challenges10 Questions0% Completion: 'WebCrawler' object has no attribute 'own_navigator'
+2025-10-20 16:38:19,351 - INFO - Navigator initialized
+2025-10-20 16:38:19,354 - INFO - OpenRouterAPI initialized with Qwen Vision Model
+2025-10-20 16:38:19,357 - INFO - Shutting down crawler...
+2025-10-20 16:38:19,357 - ERROR - Crawler failed for https://cyberskyline.com/world/684c235bdbe1ed8e2a7f7e69: 'WebCrawler' object has no attribute 'own_navigator'
+Traceback (most recent call last):
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 253, in crawl_site
+    self.close()
+  File "/home/siraj/ai/cyber_bot/src/views/crawler.py", line 240, in close
+    if self.own_navigator:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'WebCrawler' object has no attribute 'own_navigator'. Did you mean: 'navigator'?
+2025-10-20 16:38:19,358 - INFO - Shutting down crawler...
+2025-10-20 16:38:19,358 - ERROR - [Thread 10/11] Error Wireless Access Exploitation
+3 Challenges21 Questions0% Completion: 'WebCrawler' object has no attribute 'own_navigator'
+2025-10-20 16:38:19,359 - INFO - All 11 modules crawled!
+2025-10-20 16:38:19,359 - INFO - Closing browser
+2025-10-20 16:38:19,418 - INFO - Bot execution completed

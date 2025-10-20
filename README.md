@@ -85,7 +85,7 @@ The workflow begins with the controller initiating the crawler, which navigates 
 ## Usage
 Run the bot:
 ```bash
-python -m src.controllers.graph_controller
+uv run src/main.py
 ```
 
 Output will be saved to:
