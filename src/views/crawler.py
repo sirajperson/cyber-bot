@@ -43,7 +43,7 @@ class MarkdownResults:
 {self.markdown}
 """
 
-class WebCrawler(CrawlerInterface):
+class ModuleCrawler(CrawlerInterface):
     """
     A view tool for crawling CyberSkyline Gymnasium, implementing CrawlerInterface to gather
     module data and screenshots for VLM processing.
@@ -148,6 +148,7 @@ class WebCrawler(CrawlerInterface):
 
     def crawl(self, url: Optional[str] = None, depth: Optional[int] = None) -> None:
         """Recursively crawl starting from the given URL, taking screenshots for VLM."""
+        ### The Crawler is responsible for imaging and marking down the modules.
         if url is None:
             url = self.base_url
         if depth is None:
@@ -237,7 +238,7 @@ class WebCrawler(CrawlerInterface):
         """Clean up resources, implementing CrawlerInterface."""
         logger.info("Shutting down crawler...")
         self.executor.shutdown(wait=True)
-        if self.own_navigator:
+        if self.navigator:
             try:
                 self.navigator.close_browser()
             except Exception as e:
@@ -246,11 +247,15 @@ class WebCrawler(CrawlerInterface):
     def crawl_site(self, url: str, max_depth: int = 3, max_workers: int = 4) -> Dict:
         """Asynchronously crawl a site and return comprehensive data."""
         try:
+            self.navigator.navigate_to(url)
+
             self.max_depth = max_depth
             self.executor = ThreadPoolExecutor(max_workers=max_workers)
             asyncio.to_thread(self.crawl)  # Run synchronous crawl in a thread
             results = self.get_results()
+
             self.close()
+
             logger.info(f"Completed crawl for {url}")
             return results
         except Exception as e:
@@ -260,11 +265,3 @@ class WebCrawler(CrawlerInterface):
                 "html_content": {}, "markdown_map": {}, "module_data": {}, "screenshot_map": {},
                 "statistics": {}
             }
-
-if __name__ == "__main__":
-    import asyncio
-    async def main():
-        crawler = WebCrawler(Config.BASE_URL)
-        results = crawler.crawl_site(Config.BASE_URL, max_depth=3, max_workers=4)
-        print(json.dumps(results, indent=2))
-    asyncio.run(main())

@@ -83,6 +83,7 @@ class Navigator:
         options: ChromeOptions = None,
         service: ChromeService = None,
         keep_alive: bool = True,
+        cookies: list[dict] = None,
     ) -> None:
         self.USER_AGENT = (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -109,26 +110,15 @@ class Navigator:
             options.add_argument("--dns-prefetch-disable")
             options.add_argument(f"user-agent={self.USER_AGENT}")
 
+        if cookies:
+            for cookie in cookies:
+                self.add_cookie(cookie)
+
         # Initialize WebDriver
         self.driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()))
         self.driver.set_page_load_timeout(30)
         self.help_functions = HelpFunctions()
         logger.info("Navigator initialized")
-
-    def _get_chrome_version(self) -> str:
-        """Get the installed Chrome version using the command line."""
-        try:
-            result = subprocess.run(['google-chrome', '--version'], capture_output=True, text=True)
-            if result.returncode == 0:
-                version = result.stdout.strip().split()[-1]
-                return version
-            logger.warning("Failed to get Chrome version with google-chrome, trying chromium")
-            result = subprocess.run(['chromium-browser', '--version'], capture_output=True, text=True)
-            if result.returncode == 0:
-                return result.stdout.strip().split()[-1]
-        except FileNotFoundError:
-            logger.error("Neither google-chrome nor chromium-browser found")
-        return None
 
     def authenticate(self, username: str, password: str) -> bool:
         """Authenticate with the provided credentials."""
