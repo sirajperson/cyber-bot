@@ -1,0 +1,46 @@
+# CyberSkyline Gymnasium Mindmap
+
+
+--- Cryptography
+8 Challenges14 Questions100% Completion [ERROR] ---
+'WebCrawler' object has no attribute 'own_navigator'
+
+--- Getting Started
+1 Challenges8 Questions100% Completion [ERROR] ---
+'WebCrawler' object has no attribute 'own_navigator'
+
+--- Open Source Intelligence
+8 Challenges31 Questions100% Completion [ERROR] ---
+'WebCrawler' object has no attribute 'own_navigator'
+
+--- Password Cracking
+7 Challenges37 Questions40.54% Completion [ERROR] ---
+'WebCrawler' object has no attribute 'own_navigator'
+
+--- Forensics
+6 Challenges21 Questions0% Completion [ERROR] ---
+'WebCrawler' object has no attribute 'own_navigator'
+
+--- Network Traffic Analysis
+8 Challenges45 Questions0% Completion [ERROR] ---
+'WebCrawler' object has no attribute 'own_navigator'
+
+--- Scanning & Reconnaissance
+4 Challenges20 Questions0% Completion [ERROR] ---
+'WebCrawler' object has no attribute 'own_navigator'
+
+--- Log Analysis
+8 Challenges59 Questions0% Completion [ERROR] ---
+'WebCrawler' object has no attribute 'own_navigator'
+
+--- Web Application Exploitation
+6 Challenges13 Questions0% Completion [ERROR] ---
+'WebCrawler' object has no attribute 'own_navigator'
+
+--- Wireless Access Exploitation
+3 Challenges21 Questions0% Completion [ERROR] ---
+'WebCrawler' object has no attribute 'own_navigator'
+
+--- Enumeration & Exploitation
+7 Challenges10 Questions0% Completion [ERROR] ---
+'WebCrawler' object has no attribute 'own_navigator'
