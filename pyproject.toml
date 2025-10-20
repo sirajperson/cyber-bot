@@ -1,0 +1,20 @@
+[project]
+name = "cyber-bot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    "selenium",
+    "webdriver-manager",
+    "beautifulsoup4",
+    "requests",
+    "python-dotenv",
+    "aiohttp",
+    "aiomysql",
+]
+[tool.uv]
+dev-dependencies = [
+    "pytest"
+]
