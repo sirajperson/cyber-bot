@@ -1,20 +1,70 @@
 [project]
 name = "cyber-bot"
 version = "0.1.0"
-description = "Add your description here"
+description = "CyberSkyline Gymnasium crawler"
 readme = "README.md"
 requires-python = ">=3.12"
 
 dependencies = [
-    "selenium",
-    "webdriver-manager",
-    "beautifulsoup4",
+    "websockets",
+    "pyaudio",
+    "numpy",
+    "pydantic",
     "requests",
-    "python-dotenv",
-    "aiohttp",
+    "paramiko",
+    "pillow",
+    "selenium",
+    "beautifulsoup4",
+    "pycparser",
+    "swarm",
+    "tweepy",
+    "openai",
+    "webdriver-manager",
+    "python-facebook-api",
+    "pandas",
+    "httpx",
+    "parsel",
+    "mysql-connector-python",
     "aiomysql",
+    "google-generativeai",
+    "markitdown",
+    "aiohttp",
+    "google",
+    "protobuf",
+    "tenacity",
+    "facebook-sdk",
+    "pytest",
+    "matplotlib",
+    "seaborn",
+    "Jinja2",
+    "weasyprint",
+    "crewai",
+    "langchain",
+    "langchain-addons",
+    "langchain-openai",
+    "langchain-anthropic",
+    "langchain-autotools",
+    "langchain-gemini",
+    "PyMySQL",
+    "pure_eval",
+    "pygame",
+    "wordpresspy",
+    "Markdown",
+    "aiohttp",
+    "crewai",
+    "tenacity",
+    "dotenv",
 ]
+
+[project.scripts]
+main = "src.main:main"
+
 [tool.uv]
-dev-dependencies = [
-    "pytest"
-]
+package = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
