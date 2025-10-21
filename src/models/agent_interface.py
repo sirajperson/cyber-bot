@@ -2,13 +2,22 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional
 
 class AgentInterface(ABC):
+
+    @abstractmethod
+    def train(self):
+        pass
+
+    @abstractmethod
+    def run(self):
+        pass
+
+
     """
     Interface defining the contract for agent operations in the Cyber Bot project,
     integrating with CrewAI for module processing, ticket generation, and navigation support.
     This interface ensures consistent behavior for agent-based tasks such as module content
     extraction, question analysis, and navigation guidance using vision models.
     """
-
     @abstractmethod
     def process_module(self, module_data: Dict[str, Any]) -> Dict[str, Any]:
         """

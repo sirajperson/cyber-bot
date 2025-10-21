@@ -5,7 +5,6 @@ from src.common.file_handler import FileHandler  # Assume FileHandler implements
 import logging
 import os
 from typing import Dict, Any, Optional
-import asyncio
 from bs4 import BeautifulSoup
 
 # Configure logging
@@ -13,7 +12,7 @@ logging.basicConfig(filename='logs/bot.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-class ModuleTeam(AgentInterface):
+class ModuleCrew(AgentInterface):
     """
     Module Team agent responsible for processing module data, extracting content (e.g., objectives,
     questions) using vision and text analysis, generating tickets, and supporting navigation analysis.
@@ -144,30 +143,3 @@ class ModuleTeam(AgentInterface):
         except Exception as e:
             logger.error(f"Analyze navigation failed: {str(e)}")
             raise
-
-if __name__ == "__main__":
-    # Example usage for testing
-    import asyncio
-
-    async def main():
-        team = ModuleTeam()
-        module_data = {
-            'url': 'https://cyberskyline.com/module/example',
-            'html': '<h1 class="module-title">Example</h1><div class="objectives">Learn basics</div><div class="question-frame">Q1</div>',
-            'screenshot_path': 'data/example_screenshot.png'
-        }
-        processed_data = await team.process_module(module_data)
-        print(f"Processed module: {processed_data}")
-
-        question_data = {
-            'module_name': 'Example',
-            'question_text': 'Solve Q1',
-            'category': 'Cryptography'
-        }
-        ticket_path = await team.generate_ticket(question_data)
-        print(f"Ticket created at: {ticket_path}")
-
-        navigation_data = await team.analyze_navigation(image_path='data/example_screenshot.png')
-        print(f"Navigation analysis: {navigation_data}")
-
-    asyncio.run(main())

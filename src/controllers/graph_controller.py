@@ -1,12 +1,8 @@
 import os
-import asyncio
 import logging
-from src.views.module_team import ModuleTeam
-from src.views.navigator import Navigator
-from src.views.research_crew import ResearchCrew
-from src.views.crawler import ModuleCrawler
-from src.common.utils import generate_mermaid_mindmap
-from src.common.openrouter_api import OpenRouterAPI
+from src.viewers.navigator import Navigator
+from src.viewers.crews.research_crew import ResearchCrew
+from src.viewers.crawler import ModuleCrawler
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -78,6 +74,7 @@ def crawl_module_thread(module_name: str, module_url: WebElement, index: int, to
 
 
 class GraphController:
+
     async def organize_teams(self, navigator: Navigator):
         """Asynchronously organize teams to process modules and generate the mindmap."""
         logger.info("Starting team organization")
@@ -94,7 +91,6 @@ class GraphController:
         logging.info(f"Found {len(module_links)} modules")
 
         os.makedirs("data", exist_ok=True)
-        openrouter = OpenRouterAPI()
 
         try:
             module_futures = []
@@ -116,33 +112,19 @@ class GraphController:
             # Wait & collect
             results_data = []
             for future in as_completed(module_futures):
+                # This is where we create a team out of the markdown and image date.
+                # First we need to research. Our research crew will identify the nature of the module, and build a plan
+                research_crew = ResearchCrew()
+                research_results = research_crew.kickoff(future)
+                # The Module Crew Will generate a solution process.
+
                 module_name, results = future.result()
                 results_data.append((module_name, results))
 
             executor.shutdown()
 
-            # Process results. This is super simple right now, Just take the graph and make a big file out of it.
-            # This could be much more sophisticated.
-            with open("data/cyberskyline_mindmap.txt", "w", encoding='utf-8') as f:
-                f.write("# CyberSkyline Gymnasium Mindmap\n\n")
-                for module_name, results in results_data:
-                    if "error" in results:
-                        f.write(f"\n--- {module_name} [ERROR] ---\n{results['error']}\n")
-                    else:
-                        for url, html in results.get("html_content", {}).items():
-                            markdown = await openrouter.convert_to_markdown(html)
-                            f.write(f"\n--- {module_name} ---\n{markdown}\n")
-
-            logging.info(f"All {len(results_data)} modules crawled!")
+            logging.info(f"All {len(results_data)} modules complete!")
 
         except Exception as e:
             logger.error(f"Team organization failed: {str(e)}", exc_info=True)
             raise
-
-    def run(self):
-        """Run the controller by executing the team organization asynchronously."""
-        asyncio.run(self.organize_teams())
-
-if __name__ == "__main__":
-    controller = GraphController()
-    controller.run()

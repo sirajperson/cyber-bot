@@ -13,7 +13,7 @@ import os
 from dataclasses import dataclass, asdict
 
 from src.models.crawler_interface import CrawlerInterface
-from src.views.navigator import Navigator
+from src.viewers.navigator import Navigator
 from src.common.config import Config
 from src.common.openrouter_api import OpenRouterAPI
 import asyncio
@@ -188,11 +188,11 @@ class ModuleCrawler(CrawlerInterface):
                 self.url_map[url] = list(extracted_links)
                 self.screenshot_map[url] = screenshot_path
 
-            if self._determine_page_type(soup, url) == 'module':
-                with self.module_lock:
-                    # Use async execution for module data extraction
-                    loop = asyncio.get_event_loop()
-                    self.module_data[url] = loop.run_until_complete(self.extract_module_data(soup, url, screenshot_path))
+            # if self._determine_page_type(soup, url) == 'module':
+            #     with self.module_lock:
+            #         # Use async execution for module data extraction
+            #         loop = asyncio.get_event_loop()
+            #         self.module_data[url] = loop.run_until_complete(self.extract_module_data(soup, url, screenshot_path))
 
             if depth > 1:
                 futures = []

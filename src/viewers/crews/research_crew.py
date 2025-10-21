@@ -1,3 +1,5 @@
+from concurrent.futures import Future
+
 from bs4 import BeautifulSoup
 from crewai import Agent, Task
 from src.models.agent_interface import AgentInterface
@@ -164,21 +166,8 @@ class ResearchCrew(AgentInterface):
             logger.error(f"Analyze navigation failed: {str(e)}")
             raise
 
-if __name__ == "__main__":
-    # Example usage for testing
-    import asyncio
+    def kickoff(self, future: Future) -> Dict[str, Any]:
+        
 
-    async def main():
-        crew = ResearchCrew()
-        module_data = {"url": "https://example.com/module", "html": "<div class='question-frame'>Question 1</div>"}
-        processed_data = await crew.process_module(module_data)
-        print(f"Processed module: {processed_data}")
+        pass
 
-        question_data = {"module_name": "Fencing", "question_text": "Analyze network traffic", "category": "Cryptography"}
-        ticket_path = await crew.generate_ticket(question_data)
-        print(f"Ticket created at: {ticket_path}")
-
-        navigation_data = await crew.analyze_navigation(image_path="data/test_screenshot.png")
-        print(f"Navigation analysis: {navigation_data}")
-
-    asyncio.run(main())

@@ -6,7 +6,7 @@ import asyncio
 
 from src.common.config import Config
 from selenium.webdriver.common.by import By
-from src.views.navigator import Navigator
+from src.viewers.navigator import Navigator
 from src.controllers.graph_controller import GraphController
 
 # sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

@@ -82,6 +82,7 @@ class OpenRouterAPI:
         wait=wait_exponential(multiplier=1, min=4, max=10),
         retry=retry_if_exception_type(AIError)
     )
+
     async def convert_to_markdown(self, html: str, image_path: Optional[str] = None) -> str:
         """Convert HTML and optional image to markdown using Qwen3-VL Vision Model."""
         await self.vision_limiter.acquire()
@@ -170,16 +171,10 @@ class OpenRouterAPI:
             logger.error(f"Image analysis error: {str(e)}")
             raise AIError(f"Failed to analyze image for navigation: {str(e)}")
 
-if __name__ == "__main__":
-    import asyncio
-    async def main():
-        api = OpenRouterAPI()
-        html_sample = "<h1>Test</h1><p>Content</p>"
-        markdown = await api.convert_to_markdown(html_sample)
-        print("Markdown:", markdown)
+    def get_llm(self):
+        llm_config = ModelConfig()
 
-        # Test image analysis
-        image_path = "path/to/your/image.jpg"
-        navigation_data = await api.analyze_image_for_navigation(image_path)
-        print("Navigation Analysis:", navigation_data)
-    asyncio.run(main())
+        pass
+
+    def get_vlm(self):
+        vlm_config = ImageConfig()
