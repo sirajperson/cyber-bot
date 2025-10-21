@@ -96,38 +96,170 @@ Output will be saved to:
 ## Project Structure
 ```
 .
+├── data
+│   ├── cyberskyline_mindmap.txt
+│   ├── meeting_notes.txt
+│   └── screenshots
+│       ├── https:__cyberskyline.com_competition_dashboard_screenshot.png
+│       └── https:__cyberskyline.com_world_684c235bdbe1ed8e2a7f7e69_screenshot.png
+├── env.example
+├── logs
+│   └── bot.log
+├── pyproject.toml
+├── README.md
 ├── src
-│   ├── common
-│   │   ├── config.py          # Configuration with environment variables
-│   │   ├── file_handler.py    # File operations (download, save, etc.)
-│   │   ├── openrouter_api.py  # OpenRouter AI integration
-│   │   └── utils.py           # Utility functions (e.g., mindmap generation)
-│   ├── controllers
-│   │   ├── graph_controller.py  # Orchestrates crawling and team processing
-│   │   └── __init__.py
-│   ├── __init__.py
-│   ├── main.py                # Entry point for manual testing
-│   ├── models
-│   │   ├── agent_interface.py   # Agent operation contracts
-│   │   ├── crawler_interface.py # Crawler contract
-│   │   ├── file_interface.py    # File operation contract
-│   │   └── __init__.py
-│   └── views
-│       ├── crawler.py          # Web crawling with screenshot capture
-│       ├── __init__.py
-│       ├── module_team.py      # Processes module data
-│       ├── navigator.py        # Browser navigation tool
-│       └── research_crew.py    # Analyzes questions and suggests solutions
-├── tests                       # Directory for test files
-├── data                        # Stores screenshots, mindmaps, and tickets
-├── logs                        # Log files
-├── pyproject.toml              # UV configuration
-├── README.md                   # This file
-├── .env                        # Environment variables
-├── env.example                 # Template for .env
-├── .gitignore
-├── uv.lock
-└── .venv
+│   ├── common
+│   │   ├── config.py
+│   │   ├── file_handler.py
+│   │   ├── __init__.py
+│   │   ├── openrouter_api.py
+│   │   ├── slack_helper.py
+│   │   ├── trello_helper.py
+│   │   ├── types.py
+│   │   └── utils.py
+│   ├── controllers
+│   │   ├── crew_controller.py
+│   │   ├── graph_controller.py
+│   │   ├── __init__.py
+│   │   └── main.py
+│   ├── data
+│   ├── __init__.py
+│   ├── integrations
+│   │   ├── azure_model
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   ├── poetry.lock
+│   │   │   ├── pyproject.toml
+│   │   │   ├── README.md
+│   │   │   └── uv.lock
+│   │   ├── CrewAI-LangGraph
+│   │   │   ├── CrewAI-LangGraph.png
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   ├── README.md
+│   │   │   ├── requirements.txt
+│   │   │   └── src
+│   │   │       ├── crew
+│   │   │       │   ├── agents.py
+│   │   │       │   ├── crew.py
+│   │   │       │   ├── __init__.py
+│   │   │       │   ├── tasks.py
+│   │   │       │   └── tools.py
+│   │   │       ├── graph.py
+│   │   │       ├── __init__.py
+│   │   │       ├── nodes.py
+│   │   │       └── state.py
+│   │   ├── __init__.py
+│   │   ├── nvidia_models
+│   │   │   ├── __init__.py
+│   │   │   ├── intro
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── main.py
+│   │   │   │   ├── Makefile
+│   │   │   │   ├── pyproject.toml
+│   │   │   │   ├── README.md
+│   │   │   │   ├── scripts
+│   │   │   │   │   ├── check_pydantic.sh
+│   │   │   │   │   └── lint_imports.sh
+│   │   │   │   └── uv.lock
+│   │   │   └── marketing_strategy
+│   │   │       ├── __init__.py
+│   │   │       ├── Makefile
+│   │   │       ├── marketing_posts.ipynb
+│   │   │       ├── pyproject.toml
+│   │   │       ├── README.md
+│   │   │       ├── scripts
+│   │   │       │   ├── check_pydantic.sh
+│   │   │       │   └── lint_imports.sh
+│   │   │       ├── src
+│   │   │       │   ├── __init__.py
+│   │   │       │   └── marketing_posts
+│   │   │       │       ├── config
+│   │   │       │       │   ├── agents.yaml
+│   │   │       │       │   └── tasks.yaml
+│   │   │       │       ├── crew.py
+│   │   │       │       ├── __init__.py
+│   │   │       │       ├── llm.py
+│   │   │       │       └── main.py
+│   │   │       └── uv.lock
+│   │   └── README.md
+│   ├── main.py
+│   ├── models
+│   │   ├── agent_interface.py
+│   │   ├── crawler_interface.py
+│   │   ├── file_interface.py
+│   │   └── __init__.py
+│   └── viewers
+│       ├── crawler.py
+│       ├── crews
+│       │   ├── game_builder_crew
+│       │   │   ├── config
+│       │   │   │   ├── agents.yaml
+│       │   │   │   ├── gamedesign.yaml
+│       │   │   │   └── tasks.yaml
+│       │   │   ├── crew.py
+│       │   │   ├── crew_runner.py
+│       │   │   ├── __init__.py
+│       │   │   └── README.md
+│       │   ├── __init__.py
+│       │   ├── markdown_validator_crew
+│       │   │   ├── config
+│       │   │   │   ├── agents.yaml
+│       │   │   │   └── tasks.yaml
+│       │   │   ├── crew.py
+│       │   │   ├── crew_runner.py
+│       │   │   ├── __init__.py
+│       │   │   └── README.md
+│       │   ├── meeting_assistant_crew
+│       │   │   ├── config
+│       │   │   │   ├── agents.yaml
+│       │   │   │   └── tasks.yaml
+│       │   │   ├── __init__.py
+│       │   │   ├── meeting_assistant_crew.py
+│       │   │   └── README.md
+│       │   ├── module_crew.py
+│       │   ├── prep-for-a-meeting
+│       │   │   ├── agents.py
+│       │   │   ├── __init__.py
+│       │   │   ├── main.py
+│       │   │   └── tasks.py
+│       │   ├── research_crew.py
+│       │   ├── shakespeare_crew
+│       │   │   ├── config
+│       │   │   │   ├── agents.yaml
+│       │   │   │   └── tasks.yaml
+│       │   │   ├── __init__.py
+│       │   │   └── shakespeare_crew.py
+│       │   ├── tools
+│       │   │   ├── browser_tools.py
+│       │   │   ├── calculator_tools.py
+│       │   │   ├── CharacterCounterTool.py
+│       │   │   ├── ExaSearchTool.py
+│       │   │   ├── __init__.py
+│       │   │   ├── markdownTools.py
+│       │   │   └── search_tools.py
+│       │   ├── trip_planner
+│       │   │   ├── __init__.py
+│       │   │   ├── main.py
+│       │   │   ├── README.md
+│       │   │   ├── trip_agents.py
+│       │   │   └── trip_tasks.py
+│       │   └── x_post_review_crew
+│       │       ├── config
+│       │       │   ├── agents.yaml
+│       │       │   └── tasks.yaml
+│       │       ├── __init__.py
+│       │       └── x_post_review_crew.py
+│       ├── __init__.py
+│       └── navigator.py
+├── temp
+├── tests
+│   ├── __init__.py
+│   ├── test_crawler.py
+│   ├── test_navigator.py
+│   └── test_openrouter_api.py
+└── uv.lock
+
 ```
 
 ## Contributing
