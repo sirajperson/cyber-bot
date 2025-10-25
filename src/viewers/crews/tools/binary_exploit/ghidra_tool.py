@@ -1,6 +1,6 @@
 from typing import Type, Any, Optional
 from pydantic import BaseModel, Field
-from crewai_tools import BaseTool
+from crewai.tools import BaseTool
 
 # --- Input Schema (Optional) ---
 # Define parameters the LLM should provide to this tool.
