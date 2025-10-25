@@ -1,291 +1,193 @@
-# Cyber Bot
+# Cyber Bot 🤖
 
-A web crawler designed to navigate and map the CyberSkyline Gymnasium platform, extracting module structures, questions, and visual data into markdown format, and generating a Mermaid.js-compatible mind map with VLM (Vision-Language Model) support.
+A web crawler and AI agent system designed to navigate the CyberSkyline Gymnasium platform, extract challenge data using Vision-Language Models (VLM), analyze challenges with specialized AI crews, and generate solution plans.
 
 ## Overview
 
-Cyber Bot automates authentication into the CyberSkyline platform, navigates to the "Gymnasium" section, and crawls through module groups and challenges. It leverages OpenRouter's AI models for text and image analysis, converting HTML question frames to markdown using screenshots for VLM processing, and creates a hierarchical mind map for visualization.
+Cyber Bot logs into CyberSkyline, navigates to the Gymnasium, and crawls modules. It captures page content (HTML) and visual layout (screenshots) for each challenge. This data is then processed by specialized AI agent crews, leveraging OpenRouter's VLM for initial markdown conversion and CrewAI for analysis. Each crew uses a self-evaluation loop (Generator + Evaluator agents) to refine its analysis before producing a final solution plan ("ticket") saved as markdown. The project also generates a Mermaid.js mind map of the site structure.
 
 ## Features
-- **Authentication**: Securely logs into CyberSkyline with provided credentials.
-- **Navigation**: Explores "Gymnasium" dropdowns and module links with screenshot support.
-- **Content Extraction**: Converts HTML to markdown, integrating VLM for image-based analysis.
-- **Mind Mapping**: Generates a Mermaid.js mind map of topics, modules, and questions.
-- **Multi-Threaded Crawling**: Utilizes concurrent workers for efficient site traversal.
-- **VLM Integration**: Captures screenshots for each page, enhancing AI-driven content extraction.
 
-## Architecture
+* **Authentication & Navigation**: Securely logs in and navigates the CyberSkyline Gymnasium.
+* **VLM-Powered Data Extraction**: Uses screenshots and HTML with a VLM (Qwen via OpenRouter) to generate rich markdown representations of challenges.
+* **Specialized AI Crews**: Employs dedicated crews for each challenge category (OSINT, Crypto, Forensics, etc.) using CrewAI.
+* **Self-Evaluation Loop**: Each crew uses a Generator-Evaluator pattern within a `Flow` to ensure high-quality analysis and feedback-driven refinement.
+* **Modular Architecture (MVC)**: Organized using Model-View-Controller for clarity and maintainability.
+* **Organized Tooling**: Tools used by crews are structured by category.
+* **Mind Mapping**: Generates a Mermaid.js mind map of the crawled site structure.
+* **Multi-Threaded Crawling**: Efficiently gathers data using concurrent workers.
 
-The Cyber Bot project is organized using the **Model-View-Controller (MVC)** architectural pattern to ensure modularity and scalability:
+## Architecture (MVC Pattern)
 
-- **Models (`src/models/`)**: Define interfaces and data structures for the application's core logic. This includes:
-  - `agent_interface.py`: Contracts for agent operations (e.g., processing modules, generating tickets).
-  - `crawler_interface.py`: Blueprint for web crawling functionality.
-  - `file_interface.py`: Contract for file handling operations.
-  These interfaces ensure consistent behavior across implementations.
+Cyber Bot uses a Model-View-Controller approach:
 
-- **Views (`src/views/`)**: Handle data presentation and interaction with external systems (e.g., CyberSkyline). Key components include:
-  - `crawler.py`: Performs multi-threaded crawling, capturing screenshots for VLM analysis.
-  - `module_team.py`: Processes module data into structured formats using VLM.
-  - `research_crew.py`: Analyzes questions and suggests solutions.
-  - `navigator.py`: Drives browser interactions for navigation and authentication.
-  Views generate data (e.g., markdown, screenshots) for the controller.
+* **Models (`src/models/`)**: Defines **interfaces** (abstract base classes) for core components, ensuring consistent contracts.
+    * `crawler_interface.py`: Blueprint for any web crawler.
+    * `agent_interface.py`: Contract for agent operations (implemented implicitly by CrewAI crews).
+    * `file_interface.py`: Contract for file handling.
 
-- **Controllers (`src/controllers/`)**: Orchestrate the workflow between models and views. The primary file:
-  - `graph_controller.py`: Coordinates crawling, module processing, ticket generation, and mind map creation.
-  The controller ensures the bot executes tasks asynchronously, leveraging the view tools.
+* **Views (`src/viewers/`)**: Handles **interaction with external systems** and data gathering.
+    * `navigator.py`: The low-level Selenium browser driver for login and page interaction.
+    * `crawler.py` (`ModuleCrawler`): Implements `CrawlerInterface`. Orchestrates the `Navigator` to crawl pages, take screenshots, and trigger VLM markdown conversion via `OpenRouterAPI`. This is the primary data gathering view.
 
-- **Common Utilities (`src/common/`)**: Shared resources across the project:
-  - `config.py`: Manages environment variables (e.g., API keys, credentials).
-  - `file_handler.py`: Implements file operations (download, save, etc.).
-  - `openrouter_api.py`: Integrates OpenRouter AI for VLM processing.
-  - `utils.py`: Provides utility functions (e.g., mind map generation).
+* **Controllers (`src/controllers/`)**: **Orchestrate the workflow** between Models and Views.
+    * `graph_controller.py` (`GraphController`): Responsible **only for data collection**. Its `clone_site` method uses the `ModuleCrawler` to crawl the target site and gather HTML, screenshots, and VLM markdown for all modules.
+    * `crew_controller.py` (`CrewController`): Responsible **only for data analysis**. Its `organize_teams` method takes the results from `clone_site`, selects the appropriate specialized **Crew** for each module, and runs a **self-evaluation `ModuleAnalysisFlow`** (Generator Crew -> Evaluator Crew -> Loop with feedback) to produce the final analysis ticket.
 
-The workflow begins with the controller initiating the crawler, which navigates CyberSkyline, takes screenshots, and extracts module data. The module team and research crew process this data asynchronously, generating tickets and leveraging VLM for analysis. Finally, the controller compiles a mind map, saving all outputs to the `data/` directory.
+* **Common Utilities (`src/common/`)**: Shared resources.
+    * `config.py`: Loads environment variables (`.env`).
+    * `openrouter_api.py`: Client for interacting with OpenRouter VLM (Qwen model).
+    * `file_handler.py`: Implements `FileInterface` for saving tickets, screenshots, etc.
+    * `utils.py`: Helper functions (e.g., `generate_mermaid_mindmap`).
+
+* **Crews (`src/viewers/crews/`)**: The **AI agents** responsible for analysis, structured by challenge category.
+    * Each category (e.g., `crypto_crew`, `osint_crew`) has its own directory containing `crew.py`, `config/agents.yaml`, and `config/tasks.yaml`.
+    * Follows the `@CrewBase` pattern for defining agents and tasks.
+    * Each specialized crew acts as the **"Generator"** in the self-evaluation flow.
+    * A generic `analysis_review_crew` (to be created) acts as the **"Evaluator"**.
+
+* **Tools (`src/viewers/crews/tools/`)**: **Specialized functions** callable by agents, organized by category.
+    * `general/`: Contains tools usable by multiple crews (e.g., search, browser).
+    * Category-specific directories (e.g., `crypto/`, `recon/`) contain tools relevant to those challenges (e.g., `nmap_tool.py`).
+
+### Workflow Summary
+
+1.  `main.py` starts, authenticates using `Navigator`.
+2.  `main.py` calls `GraphController.clone_site()`.
+3.  `GraphController` uses `ModuleCrawler` (which uses `Navigator` and `OpenRouterAPI`) to crawl modules, take screenshots, get VLM markdown, and collect results.
+4.  `main.py` passes `crawl_results` to `CrewController.organize_teams()`.
+5.  `CrewController` iterates through results:
+    * Selects the appropriate specialized **Generator Crew** (e.g., `CryptoCrew`).
+    * Selects the generic **Evaluator Crew** (`AnalysisReviewCrew`).
+    * Instantiates and kicks off `ModuleAnalysisFlow` with these two crews.
+    * `ModuleAnalysisFlow` runs the Generator, then the Evaluator, looping with feedback until valid.
+    * The `Flow` saves the final valid analysis using `FileHandler`.
+6.  `main.py` finishes, potentially generating the mind map via `utils.py`.
 
 ## Prerequisites
-- Python 3.12 or higher
-- UV package manager
-- OpenRouter.ai Account:
-  1. Visit [https://openrouter.ai](https://openrouter.ai) and sign up for an account.
-  2. Navigate to the API section and generate an API key.
-  3. Save the API key securely, as it will be required in the `.env` file during configuration.
-- CyberSkyline Account:
-  1. Register or log in at [https://cyberskyline.com/competition](https://cyberskyline.com/competition).
-  2. Obtain a valid username and password for authentication.
+
+* Python 3.12+
+* UV package manager (`pip install uv` or `sudo apt install uv`)
+* OpenRouter.ai Account & API Key (for VLM)
+* CyberSkyline Account (Username & Password)
 
 ## Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/sirajperson/cyber-bot.git
-   cd cyber-bot
-   ```
-2. Install UV (if not already installed):
-   - For Debian-based systems (e.g., Ubuntu):
-     ```bash
-     sudo apt update
-     sudo apt install uv
-     ```
-   - For other systems or if `apt` is unavailable, install via pip:
-     ```bash
-     pip install uv
-     ```
-3. Sync dependencies:
-   ```bash
-   uv sync
-   ```
-4. Copy `env.example` to `.env`:
-   ```bash
-   cp env.example .env
-   ```
-5. Configure `.env`:
-   - Set `USERNAME` and `PASSWORD` with your CyberSkyline credentials.
-   - Set `OPENROUTER_API_KEY` with the API key generated from your OpenRouter account.
+
+1.  Clone: `git clone https://github.com/sirajperson/cyber-bot.git && cd cyber-bot`
+2.  Install UV: (See Prerequisites)
+3.  Sync Deps: `uv sync`
+4.  Configure Env: `cp env.example .env` and edit `.env` with your `USERNAME`, `PASSWORD`, and `OPENROUTER_API_KEY`.
 
 ## Usage
-Run the bot:
+
+Run the main bot workflow:
+
 ```bash
 uv run -m src.main
-```
+````
 
-Output will be saved to:
-- `data/cyberskyline_mindmap.txt` (mind map)
-- `data/screenshots/` (page screenshots)
-- `data/` (module tickets, e.g., `cryptography-fencing-q1.txt`)
+Outputs:
+
+  * Mind map: `data/cyberskyline_mindmap.txt`
+  * Screenshots: `data/screenshots/`
+  * Analysis Tickets: `data/ticket_*.md`
 
 ## Project Structure
+
 ```
 .
-├── data
-│   ├── cyberskyline_mindmap.txt
-│   ├── meeting_notes.txt
-│   └── screenshots
-│       ├── https:__cyberskyline.com_competition_dashboard_screenshot.png
-│       └── https:__cyberskyline.com_world_684c235bdbe1ed8e2a7f7e69_screenshot.png
-├── env.example
-├── logs
-│   └── bot.log
-├── pyproject.toml
-├── README.md
-├── src
-│   ├── common
-│   │   ├── config.py
-│   │   ├── file_handler.py
-│   │   ├── __init__.py
-│   │   ├── openrouter_api.py
-│   │   ├── slack_helper.py
-│   │   ├── trello_helper.py
-│   │   ├── types.py
-│   │   └── utils.py
-│   ├── controllers
-│   │   ├── crew_controller.py
-│   │   ├── graph_controller.py
-│   │   ├── __init__.py
-│   │   └── main.py
-│   ├── data
-│   ├── __init__.py
-│   ├── integrations
-│   │   ├── azure_model
-│   │   │   ├── __init__.py
-│   │   │   ├── main.py
-│   │   │   ├── poetry.lock
-│   │   │   ├── pyproject.toml
-│   │   │   ├── README.md
-│   │   │   └── uv.lock
-│   │   ├── CrewAI-LangGraph
-│   │   │   ├── CrewAI-LangGraph.png
-│   │   │   ├── __init__.py
-│   │   │   ├── main.py
-│   │   │   ├── README.md
-│   │   │   ├── requirements.txt
-│   │   │   └── src
-│   │   │       ├── crew
-│   │   │       │   ├── agents.py
-│   │   │       │   ├── crew.py
-│   │   │       │   ├── __init__.py
-│   │   │       │   ├── tasks.py
-│   │   │       │   └── tools.py
-│   │   │       ├── graph.py
-│   │   │       ├── __init__.py
-│   │   │       ├── nodes.py
-│   │   │       └── state.py
-│   │   ├── __init__.py
-│   │   ├── nvidia_models
-│   │   │   ├── __init__.py
-│   │   │   ├── intro
-│   │   │   │   ├── __init__.py
-│   │   │   │   ├── main.py
-│   │   │   │   ├── Makefile
-│   │   │   │   ├── pyproject.toml
-│   │   │   │   ├── README.md
-│   │   │   │   ├── scripts
-│   │   │   │   │   ├── check_pydantic.sh
-│   │   │   │   │   └── lint_imports.sh
-│   │   │   │   └── uv.lock
-│   │   │   └── marketing_strategy
-│   │   │       ├── __init__.py
-│   │   │       ├── Makefile
-│   │   │       ├── marketing_posts.ipynb
-│   │   │       ├── pyproject.toml
-│   │   │       ├── README.md
-│   │   │       ├── scripts
-│   │   │       │   ├── check_pydantic.sh
-│   │   │       │   └── lint_imports.sh
-│   │   │       ├── src
-│   │   │       │   ├── __init__.py
-│   │   │       │   └── marketing_posts
-│   │   │       │       ├── config
-│   │   │       │       │   ├── agents.yaml
-│   │   │       │       │   └── tasks.yaml
-│   │   │       │       ├── crew.py
-│   │   │       │       ├── __init__.py
-│   │   │       │       ├── llm.py
-│   │   │       │       └── main.py
-│   │   │       └── uv.lock
-│   │   └── README.md
-│   ├── main.py
-│   ├── models
-│   │   ├── agent_interface.py
-│   │   ├── crawler_interface.py
-│   │   ├── file_interface.py
-│   │   └── __init__.py
-│   └── viewers
-│       ├── crawler.py
-│       ├── crews
-│       │   ├── game_builder_crew
-│       │   │   ├── config
-│       │   │   │   ├── agents.yaml
-│       │   │   │   ├── gamedesign.yaml
-│       │   │   │   └── tasks.yaml
-│       │   │   ├── crew.py
-│       │   │   ├── crew_runner.py
-│       │   │   ├── __init__.py
-│       │   │   └── README.md
-│       │   ├── __init__.py
-│       │   ├── markdown_validator_crew
-│       │   │   ├── config
-│       │   │   │   ├── agents.yaml
-│       │   │   │   └── tasks.yaml
-│       │   │   ├── crew.py
-│       │   │   ├── crew_runner.py
-│       │   │   ├── __init__.py
-│       │   │   └── README.md
-│       │   ├── meeting_assistant_crew
-│       │   │   ├── config
-│       │   │   │   ├── agents.yaml
-│       │   │   │   └── tasks.yaml
-│       │   │   ├── __init__.py
-│       │   │   ├── meeting_assistant_crew.py
-│       │   │   └── README.md
-│       │   ├── module_crew.py
-│       │   ├── prep-for-a-meeting
-│       │   │   ├── agents.py
-│       │   │   ├── __init__.py
-│       │   │   ├── main.py
-│       │   │   └── tasks.py
-│       │   ├── research_crew.py
-│       │   ├── shakespeare_crew
-│       │   │   ├── config
-│       │   │   │   ├── agents.yaml
-│       │   │   │   └── tasks.yaml
-│       │   │   ├── __init__.py
-│       │   │   └── shakespeare_crew.py
-│       │   ├── tools
-│       │   │   ├── browser_tools.py
-│       │   │   ├── calculator_tools.py
-│       │   │   ├── CharacterCounterTool.py
-│       │   │   ├── ExaSearchTool.py
-│       │   │   ├── __init__.py
-│       │   │   ├── markdownTools.py
-│       │   │   └── search_tools.py
-│       │   ├── trip_planner
-│       │   │   ├── __init__.py
-│       │   │   ├── main.py
-│       │   │   ├── README.md
-│       │   │   ├── trip_agents.py
-│       │   │   └── trip_tasks.py
-│       │   └── x_post_review_crew
-│       │       ├── config
-│       │       │   ├── agents.yaml
-│       │       │   └── tasks.yaml
-│       │       ├── __init__.py
-│       │       └── x_post_review_crew.py
-│       ├── __init__.py
-│       └── navigator.py
-├── temp
-├── tests
-│   ├── __init__.py
-│   ├── test_crawler.py
-│   ├── test_navigator.py
-│   └── test_openrouter_api.py
-└── uv.lock
-
+├── data/                 # Output directory
+│   ├── cyberskyline_mindmap.txt
+│   ├── ticket_*.md       # Generated analysis tickets
+│   └── screenshots/      # Page screenshots for VLM
+├── env.example           # Environment variable template
+├── logs/                 # Log files
+│   └── bot.log
+├── pyproject.toml        # Project metadata and dependencies (for UV)
+├── README.md             # This file
+├── src/                  # Source code root
+│   ├── common/           # Shared utilities (Config, API clients, File IO)
+│   │   ├── config.py
+│   │   ├── file_handler.py
+│   │   ├── __init__.py
+│   │   ├── openrouter_api.py
+│   │   └── utils.py
+│   ├── controllers/      # Orchestration layer (MVC Controller)
+│   │   ├── crew_controller.py  # Handles agent crews & analysis flow
+│   │   ├── graph_controller.py # Handles crawling & data collection
+│   │   ├── __init__.py
+│   │   └── main.py           # Example secondary workflow (Meeting Bot)
+│   ├── __init__.py         # Makes 'src' a package
+│   ├── integrations/       # External examples/experiments (ignore for core bot)
+│   ├── main.py             # Main entry point for the Cyber Bot
+│   ├── models/             # Interfaces/Abstract Base Classes (MVC Model)
+│   │   ├── agent_interface.py
+│   │   ├── crawler_interface.py
+│   │   ├── file_interface.py
+│   │   └── __init__.py
+│   └── viewers/            # Interaction layer (MVC View)
+│       ├── crawler.py      # Implements CrawlerInterface (uses Navigator, OpenRouterAPI)
+│       ├── crews/          # AI Agent Crews and Tools
+│       │   ├── binary_exploit_crew/ # Example specialized crew dir
+│       │   │   ├── config/
+│       │   │   │   ├── agents.yaml
+│       │   │   │   └── tasks.yaml
+│       │   │   ├── crew.py     # Defines the @CrewBase class
+│       │   │   ├── __init__.py
+│       │   │   └── README.md
+│       │   ├── crypto_crew/
+│       │   ├── forensics_crew/
+│       │   ├── __init__.py     # Crews package init
+│       │   ├── log_analysis_crew/
+│       │   ├── osint_crew/
+│       │   ├── password_cracking_crew/
+│       │   ├── recon_crew/
+│       │   ├── research_crew.py # (May become generic base or be removed)
+│       │   ├── traffic_analysis_crew/
+│       │   ├── tools/          # Tools used by agents
+│       │   │   ├── binary_exploit/ # Example specialized tool dir
+│       │   │   │   ├── __init__.py
+│       │   │   │   └── ghidra_tool.py # Placeholder tool
+│       │   │   ├── crypto/
+│       │   │   ├── forensics/
+│       │   │   ├── general/    # Tools usable by multiple crews
+│       │   │   │   ├── browser_tools.py
+│       │   │   │   ├── __init__.py
+│       │   │   │   └── search_tools.py
+│       │   │   ├── __init__.py # Tools package init
+│       │   │   ├── log_analysis/
+│       │   │   ├── osint/
+│       │   │   ├── password_cracking/
+│       │   │   ├── recon/
+│       │   │   ├── traffic_analysis/
+│       │   │   └── web_exploit/
+│       │   └── web_exploit_crew/
+│       ├── __init__.py         # Viewers package init
+│       └── navigator.py    # Selenium browser driver wrapper
+├── tests/                # Unit/Integration tests
+│   ├── __init__.py
+│   ├── test_crawler.py
+│   └── test_navigator.py
+└── uv.lock               # Lock file for dependencies
 ```
 
 ## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss.
+
+Pull requests welcome. Please open an issue first for major changes.
 
 ## License
-[MIT](LICENSE)
+
+[MIT](https://www.google.com/search?q=LICENSE)
 
 ## Development Notes
-- **Last Updated**: 12:35 AM EDT, Monday, October 20, 2025
-- **Status**: Alpha phase, with ongoing testing of VLM integration and async workflows.
-- **Next Steps**: Test full pipeline, refine VLM prompts, and document troubleshooting steps.
-```
 
-### Instructions for Canvas File Editor
-1. **Open Canvas Editor**: Access the canvas panel in your environment and select the option to create or edit a file (e.g., "README.md").
-2. **Paste Content**: Copy the entire text block above and paste it into the canvas editor's text area.
-3. **Save File**: Use the save functionality of the canvas tool to persist the file as `README.md` in your project directory (e.g., `~/ai/cyber_bot/`).
-4. **Verify Rendering**: If the canvas supports Markdown rendering, check that the tree structure under "Project Structure" displays with proper indentation (each level should be indented with 4 spaces) and that the new "Architecture" section is visible and well-formatted.
+  * **Last Updated**: Saturday, October 25, 2025, 5:40 PM EDT
+  * **Status**: Refactoring complete. Structure for specialized crews and tools established. Self-evaluation flow implemented in `CrewController`.
+  * **Next Steps**:
+    1.  Implement the `AnalysisReviewCrew` (the generic Evaluator).
+    2.  Implement the core logic (`_run` method) for the placeholder tools in `src/viewers/crews/tools/`.
+    3.  Refine agent prompts (`agents.yaml`) and task descriptions (`tasks.yaml`) for each specialized crew.
+    4.  Test the full pipeline end-to-end.
 
-### Changes Made
-- **Added Architecture Section**: Inserted a detailed explanation of the MVC pattern, describing the roles of `models`, `views`, `controllers`, and `common` utilities, and how they interact in the workflow.
-- **Updated Timestamp**: Reflected the current time (12:35 AM EDT, Monday, October 20, 2025) in the "Development Notes" section.
-
-### Next Steps
-- **Commit Changes**: After pasting and saving, run `git add README.md && git commit -m "Add Architecture section to README"`.
-- **Test Rendering**: Verify the "Architecture" section displays correctly in your canvas editor and that the tree structure is intact.
-- **Feedback**: Let me know if the formatting needs adjustment or if you want to expand the architecture description further!
+<!-- end list -->
 
