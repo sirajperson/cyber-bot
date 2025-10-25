@@ -188,11 +188,15 @@ class ModuleCrawler(CrawlerInterface):
                 self.url_map[url] = list(extracted_links)
                 self.screenshot_map[url] = screenshot_path
 
-            # if self._determine_page_type(soup, url) == 'module':
-            #     with self.module_lock:
-            #         # Use async execution for module data extraction
-            #         loop = asyncio.get_event_loop()
-            #         self.module_data[url] = loop.run_until_complete(self.extract_module_data(soup, url, screenshot_path))
+            # --- MODIFICATION: UNCOMMENTED VLM MARKDOWN GENERATION ---
+            # Check if this page is a module page (adjust logic as needed)
+            if '/world/' in url or '/module/' in url:
+                with self.module_lock:
+                    # Use asyncio.run() to call the async extract_module_data from this sync function
+                    # This runs a new event loop for the VLM call within this thread.
+                    logger.info(f"Extracting VLM data for {url}...")
+                    self.module_data[url] = asyncio.run(self.extract_module_data(soup, url, screenshot_path))
+                    logger.info(f"VLM data extraction complete for {url}.")
 
             if depth > 1:
                 futures = []
@@ -245,13 +249,16 @@ class ModuleCrawler(CrawlerInterface):
                 logger.error(f"Error closing Navigator: {e}", exc_info=True)
 
     def crawl_site(self, url: str, max_depth: int = 3, max_workers: int = 4) -> Dict:
-        """Asynchronously crawl a site and return comprehensive data."""
+        """Crawl a site and return comprehensive data."""
         try:
             self.navigator.navigate_to(url)
 
             self.max_depth = max_depth
             self.executor = ThreadPoolExecutor(max_workers=max_workers)
-            asyncio.to_thread(self.crawl)  # Run synchronous crawl in a thread
+            # --- MODIFICATION: Fixed async call ---
+            # Just call self.crawl() directly. It's a blocking, synchronous function
+            # that will run its own asyncio.run() for VLM.
+            self.crawl(url=url, depth=max_depth)
             results = self.get_results()
 
             self.close()

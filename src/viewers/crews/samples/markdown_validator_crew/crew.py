@@ -1,6 +1,6 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
-from ..tools.markdownTools import markdown_validation_tool
+from src.viewers.samples.tools.markdownTools import markdown_validation_tool
 
 
 @CrewBase

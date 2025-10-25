@@ -1,8 +1,8 @@
 from crewai import Agent
 
-from src.viewers.crews.tools.browser_tools import BrowserTools
-from src.viewers.crews.tools.calculator_tools import CalculatorTools
-from src.viewers.crews.tools.search_tools import SearchTools
+from src.viewers.samples.tools.browser_tools import BrowserTools
+from src.viewers.samples.tools.calculator_tools import CalculatorTools
+from src.viewers.samples.tools.search_tools import SearchTools
 
 
 class TripAgents():

@@ -29,12 +29,22 @@ async def main():
         if dashboard_link: dashboard_link.click(); time.sleep(2)
 
         # Here I used the XPath because it was easiest to get the element that way. CyberSkyline isn't using iframes.
-        enter_button = navigator.find_element(By.XPATH, "/html/body/div/div/div/div/div/div/div/div[2]/div/div[1]/div/div/div/div/div[2]/div/div[4]/a")
+        enter_button = navigator.find_element(By.XPATH,
+                                              "/html/body/div/div/div/div/div/div/div/div[2]/div/div[1]/div/div/div/div/div[2]/div/div[4]/a")
         if enter_button: enter_button.click(); time.sleep(3); logging.info("Entered Gymnasium")
-        
-        # Here, we execute the graph_controller.
+
+        # --- MODIFICATION: Updated workflow ---
+
+        # 1. Initialize the controller
         graph_controller = GraphController()
-        await graph_controller.organize_teams(navigator)
+
+        # 2. Phase 1: Clone the site (Data Collection)
+        # This function now handles all crawling and returns the collected data.
+        crawl_results = await graph_controller.clone_site(navigator)
+
+        # 3. Phase 2: Organize Teams (Data Analysis)
+        # Pass the collected data to the teams for analysis and ticket generation.
+        await graph_controller.organize_teams(navigator, crawl_results)
 
     except Exception as e:
         logging.error("Error: %s", str(e))
