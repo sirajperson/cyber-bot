@@ -181,13 +181,13 @@ Pull requests welcome. Please open an issue first for major changes.
 
 ## Development Notes
 
-  * **Last Updated**: Saturday, October 25, 2025, 5:40 PM EDT
-  * **Status**: Refactoring complete. Structure for specialized crews and tools established. Self-evaluation flow implemented in `CrewController`.
-  * **Next Steps**:
-    1.  Implement the `AnalysisReviewCrew` (the generic Evaluator).
-    2.  Implement the core logic (`_run` method) for the placeholder tools in `src/viewers/crews/tools/`.
-    3.  Refine agent prompts (`agents.yaml`) and task descriptions (`tasks.yaml`) for each specialized crew.
-    4.  Test the full pipeline end-to-end.
-
-<!-- end list -->
-
+* **Last Updated**: Saturday, October 25, 2025, 5:45 PM EDT
+* **Status**: Refactoring complete. Structure for specialized crews and tools established. Self-evaluation flow implemented in `CrewController`. Placeholder files for crews and tools created.
+* **Next Steps**:
+    1.  **Implement Tools**: Define the core logic (`_run` method) for the placeholder tool wrappers in `src/viewers/crews/tools/`, enabling them to interact with underlying command-line tools (like `nmap`, `hashcat`, `ghidra` (if feasible via scripting/API), etc.).
+    2.  **Implement `AnalysisReviewCrew`**: Create the generic "Evaluator" crew (`src/viewers/crews/analysis_review_crew/`) responsible for validating the output of the generator crews using the `AnalysisVerification` Pydantic model.
+    3.  **Dockerize Environment**: Create a `Dockerfile` and associated configuration (e.g., `docker-compose.yml`) to build a containerized environment for the bot.
+    4.  **Kali Base Image**: Utilize a Kali Linux base image for the Docker container to ensure necessary security tools (`nmap`, `hashcat`, `john`, `tshark`, `binwalk`, `ghidra`, etc.) are readily available.
+    5.  **Container Configuration**: Configure the Dockerfile to install Python dependencies (via `uv sync`), set up necessary environment variables, and potentially install/configure specific tools within the Kali environment.
+    6.  **Refine Crews**: Refine agent prompts (`agents.yaml`) and task descriptions (`tasks.yaml`) for each specialized crew.
+    7.  **Test Pipeline**: Test the full crawl -> analyze -> review -> save workflow end-to-end within the Docker container.
