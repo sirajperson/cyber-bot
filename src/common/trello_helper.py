@@ -1,10 +1,9 @@
 import os
-from typing import List
-
 import requests
+from typing import List
 from dotenv import load_dotenv
 
-from meeting_assistant_flow.types import MeetingTask
+from ..common.types import MeetingTask
 
 # Load environment variables from .env file
 load_dotenv()

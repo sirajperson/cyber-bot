@@ -5,7 +5,7 @@ from typing import List
 from crewai.flow.flow import Flow, listen, start
 from pydantic import BaseModel
 
-from src.viewers.crews.meeting_assistant_crew import MeetingAssistantCrew
+from ..viewers.crews.meeting_assistant_crew.meeting_assistant_crew import MeetingAssistantCrew
 from ..common.types import MeetingTask
 from ..common.slack_helper import send_message_to_channel
 from ..common.trello_helper import save_tasks_to_trello

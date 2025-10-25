@@ -52,8 +52,17 @@ dependencies = [
     "Markdown",
     "aiohttp",
     "crewai",
+    "crewai[tools]",
     "tenacity",
     "dotenv",
+    "python-dotenv",
+    "langchain-exa",
+    "exa_py",
+    "unstructured",
+    "pyowm",
+    "tools",
+    "slack-sdk",
+    "pymarkdownlnt",
 ]
 
 [project.scripts]

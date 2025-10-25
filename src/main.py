@@ -31,7 +31,7 @@ async def main():
         # Here I used the XPath because it was easiest to get the element that way. CyberSkyline isn't using iframes.
         enter_button = navigator.find_element(By.XPATH, "/html/body/div/div/div/div/div/div/div/div[2]/div/div[1]/div/div/div/div/div[2]/div/div[4]/a")
         if enter_button: enter_button.click(); time.sleep(3); logging.info("Entered Gymnasium")
-
+        
         # Here, we execute the graph_controller.
         graph_controller = GraphController()
         await graph_controller.organize_teams(navigator)
