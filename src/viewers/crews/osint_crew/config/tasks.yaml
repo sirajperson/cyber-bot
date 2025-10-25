@@ -1,0 +1,22 @@
+gather_osint_task:
+  description: >
+    Based on the CyberSkyline OSINT challenge described in 'crawl_data', develop and execute a plan
+    to gather relevant open-source intelligence. Identify key search terms and targets. Use appropriate
+    tools and sources (search engines, social media, etc.). Synthesize the findings into a report that
+    directly answers the challenge question. Incorporate previous feedback ('feedback') if provided.
+  expected_output: >
+    A concise report summarizing the relevant OSINT findings that directly answer the challenge question.
+    Include key pieces of information discovered (e.g., email address, associated username, location, specific fact).
+    Example: "Target John Smith's primary GitHub username is 'jsmith_dev'. His profile indicates contribution to the 'ProjectX' repository, which contains the flag in a commit message dated 2024-10-20."
+
+validate_osint_task:
+  description: >
+    Review the OSINT findings report ('analysis_text'). Verify that the gathered information is relevant
+    to the specific question asked in the original challenge context ('crawl_data'). Check if the conclusions
+    are logically derived from the findings. Ensure the report isn't just a dump of raw data but a synthesized answer.
+  expected_output: >
+    A JSON object adhering to the 'AnalysisVerification' Pydantic model, containing:
+    - 'valid': boolean (True if the report is relevant and answers the question, False otherwise).
+    - 'feedback': string (Specific, actionable feedback if 'valid' is False, otherwise None or empty).
+    Example valid: {"valid": true, "feedback": null}
+    Example invalid: {"valid": false, "feedback": "Feedback: The report lists many social media profiles for 'John Smith', but fails to confirm which one belongs to the target associated with the specified company. Refine the search to correlate findings."}

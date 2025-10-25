@@ -1,0 +1,35 @@
+analyze_evidence_type_task:
+  description: >
+    Examine the CyberSkyline module data ('crawl_data') for a forensics challenge. Determine the
+    type of digital evidence provided (disk image, memory dump, specific file type like JPG/PDF/PCAP)
+    and the most likely forensic technique required (e.g., file recovery, steganography, metadata check, memory analysis).
+    Incorporate previous feedback ('feedback') if available.
+  expected_output: >
+    A clear identification of the evidence type and the primary forensic technique suspected.
+    Example: "Evidence Type: JPEG Image. Suspected Technique: Steganography or EXIF metadata analysis."
+
+develop_forensics_plan_task:
+  description: >
+    Based on the identified evidence type and technique, create a step-by-step plan to analyze the
+    evidence and find the flag. Recommend specific tools and commands or procedures.
+    Use context from 'crawl_data' and incorporate 'feedback' if provided.
+  expected_output: >
+    A detailed, numbered forensic analysis plan.
+    Example:
+    1. Evidence is a JPEG image, potentially containing hidden data.
+    2. Run 'exiftool' on the image to check for interesting metadata (GPS, comments).
+    3. Run 'binwalk -e' on the image to check for embedded files.
+    4. Run 'steghide extract -sf <image_file>' with common passwords (blank, 'password') if steganography is suspected.
+    5. Analyze any extracted files or metadata for the flag.
+
+validate_forensics_plan_task:
+  description: >
+    Review the proposed forensic analysis plan ('analysis_text'). Verify if the identified evidence
+    type matches the context. Check if the suggested tools and steps are appropriate for the type
+    and suspected technique. Ensure basic checks (like 'strings', 'file', metadata) are considered.
+  expected_output: >
+    A JSON object adhering to the 'AnalysisVerification' Pydantic model, containing:
+    - 'valid': boolean (True if the plan is sound, False otherwise).
+    - 'feedback': string (Specific, actionable feedback if 'valid' is False, otherwise None or empty).
+    Example valid: {"valid": true, "feedback": null}
+    Example invalid: {"valid": false, "feedback": "Feedback: The evidence is described as a memory dump (.vmem), but the plan suggests using Autopsy, which is for disk images. Recommend using Volatility instead."}

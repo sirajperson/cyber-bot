@@ -1,0 +1,31 @@
+identify_hash_task:
+  description: >
+    Analyze the hash string(s) provided in the CyberSkyline module data ('crawl_data').
+    Identify the specific hashing algorithm (e.g., MD5, SHA-256, bcrypt, NTLM).
+    Determine the correct `hashcat` mode number or `john` format name corresponding to this hash type.
+    Incorporate previous feedback ('feedback') if available.
+  expected_output: >
+    The identified hash algorithm name and the corresponding `hashcat` mode number or `john` format.
+    Example: "Hash Type: bcrypt. Hashcat Mode: 3200."
+
+develop_cracking_plan_task:
+  description: >
+    Based on the identified hash type (from the previous task) and any hints in 'crawl_data'
+    (like suggested wordlists or password patterns), create a specific command-line instruction
+    for `hashcat` or `john` to crack the password(s). Choose an appropriate attack mode
+    (dictionary, mask, brute-force). Incorporate 'feedback' if provided.
+  expected_output: >
+    A complete, ready-to-run command line for `hashcat` or `john`.
+    Example: "hashcat -m 3200 /path/to/hashes.txt /path/to/wordlist.txt --force"
+
+validate_cracking_plan_task:
+  description: >
+    Review the proposed cracking plan ('analysis_text'), which includes the hash identification
+    and the command line. Verify the hash type/mode is correct for the hash format. Check the
+    command syntax for `hashcat` or `john` for any errors. Assess if the chosen attack strategy is reasonable.
+  expected_output: >
+    A JSON object adhering to the 'AnalysisVerification' Pydantic model, containing:
+    - 'valid': boolean (True if the plan is sound, False otherwise).
+    - 'feedback': string (Specific, actionable feedback if 'valid' is False, otherwise None or empty).
+    Example valid: {"valid": true, "feedback": null}
+    Example invalid: {"valid": false, "feedback": "Feedback: The identified hashcat mode is 0 (MD5), but the hash starts with '$2a$', indicating bcrypt (mode 3200). The command line is incorrect."}

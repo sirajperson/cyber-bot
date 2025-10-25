@@ -1,0 +1,30 @@
+parse_logs_task:
+  description: >
+    Examine the CyberSkyline module data ('crawl_data') for a log analysis challenge. Identify the log format
+    and create a plan (using command-line tools like grep, awk, sed or specific queries) to parse the logs
+    and extract entries relevant to the challenge question (e.g., specific IP address, user, time frame, error code).
+    Incorporate previous feedback ('feedback') if available.
+  expected_output: >
+    A clear identification of the log format and a step-by-step plan or specific command(s) to parse/filter the logs.
+    Example: "Log Format: Apache Common Log Format. Plan: Use 'grep' to filter for IP '192.168.1.100', then use 'awk' to extract the requested URL (field 7)."
+
+identify_threats_task:
+  description: >
+    Analyze the relevant log entries (identified by the parsing plan or directly provided in 'crawl_data')
+    to identify security incidents, anomalies, or patterns that answer the challenge question.
+    Summarize the findings based on the log evidence. Incorporate 'feedback' if provided.
+  expected_output: >
+    A summary of the findings, clearly stating what suspicious activity or relevant information was found in the logs.
+    Example: "Findings: Multiple failed SSH login attempts from IP 10.0.0.5 targeting the 'root' user between 02:00 and 02:05 AM, indicating a likely brute-force attack."
+
+validate_log_analysis_task:
+  description: >
+    Review the proposed log parsing plan and the identified findings ('analysis_text'). Verify the correctness
+    of the parsing strategy for the given log format. Assess the validity and significance of the identified threats,
+    considering potential false positives or common log noise.
+  expected_output: >
+    A JSON object adhering to the 'AnalysisVerification' Pydantic model, containing:
+    - 'valid': boolean (True if the plan and findings are sound, False otherwise).
+    - 'feedback': string (Specific, actionable feedback if 'valid' is False, otherwise None or empty).
+    Example valid: {"valid": true, "feedback": null}
+    Example invalid: {"valid": false, "feedback": "Feedback: The identified 'SQL Injection attempt' is likely a false positive caused by a common search engine crawler's URL parameters. Re-evaluate the source IP and user agent before concluding it's malicious."}
