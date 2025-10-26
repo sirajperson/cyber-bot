@@ -1,30 +1,43 @@
 parse_logs_task:
   description: >
-    Examine the CyberSkyline module data ('crawl_data') for a log analysis challenge. Identify the log format
-    and create a plan (using command-line tools like grep, awk, sed or specific queries) to parse the logs
-    and extract entries relevant to the challenge question (e.g., specific IP address, user, time frame, error code).
-    Incorporate previous feedback ('feedback') if available.
+    Examine the CyberSkyline module data ('crawl_data') for a log analysis challenge.
+    **Actions:**
+    1. Identify the log format (e.g., Apache CLF, JSON, syslog).
+    2. Determine the specific information needed based on the challenge question (e.g., IP address, user, timestamp, error message).
+    3. Create a plan using the available tools (`GrepTool`, `AwkTool`, `SedTool`, `CutTool`, `RegexTool`, `InteractiveTerminalTool`) to parse the log file path provided in 'crawl_data' and extract the required entries or fields. Specify *which tool* and *what parameters/script* to use for each step.
+    4. Execute the plan using the tools.
+    5. Incorporate previous feedback ('feedback') if available to refine the plan.
   expected_output: >
-    A clear identification of the log format and a step-by-step plan or specific command(s) to parse/filter the logs.
-    Example: "Log Format: Apache Common Log Format. Plan: Use 'grep' to filter for IP '192.168.1.100', then use 'awk' to extract the requested URL (field 7)."
+    A clear identification of the log format, the plan (which tools/commands were used), and the resulting filtered/parsed log output needed by the Threat Identifier.
+    Example Plan Section:
+    "Log Format: Apache Common Log Format.
+    Plan:
+    1. Use `GrepTool` to filter for lines containing '404': Call `GrepTool` with `pattern=' 404 '`, `file_path='access.log'`.
+    2. Use `AwkTool` on the output of step 1 (or the original file if filtering isn't needed) to extract the IP address (field 1): Call `AwkTool` with `awk_script='{print $1}'`, `file_path='access.log'` (adjust file_path based on actual need)."
+    Result: (The actual output from the tool calls)
 
 identify_threats_task:
   description: >
-    Analyze the relevant log entries (identified by the parsing plan or directly provided in 'crawl_data')
-    to identify security incidents, anomalies, or patterns that answer the challenge question.
-    Summarize the findings based on the log evidence. Incorporate 'feedback' if provided.
+    Analyze the relevant log entries provided by the 'parse_logs_task' output (or raw logs in 'crawl_data' if parsing wasn't needed).
+    Identify security incidents, anomalies, patterns, or specific answers (like an IP address or username) requested by the challenge question.
+    Use `RegexTool` if needed to extract specific data points from the parser's output.
+    Summarize the findings clearly, referencing the log evidence. Incorporate 'feedback' if provided.
   expected_output: >
-    A summary of the findings, clearly stating what suspicious activity or relevant information was found in the logs.
-    Example: "Findings: Multiple failed SSH login attempts from IP 10.0.0.5 targeting the 'root' user between 02:00 and 02:05 AM, indicating a likely brute-force attack."
+    A summary of the findings, directly answering the challenge question based on the analyzed log data.
+    Example: "Findings: Based on the filtered logs, the IP address `10.0.0.5` attempted multiple failed SSH logins for user `root` between 02:00 and 02:05 AM, indicating a likely brute-force attack."
 
 validate_log_analysis_task:
   description: >
-    Review the proposed log parsing plan and the identified findings ('analysis_text'). Verify the correctness
-    of the parsing strategy for the given log format. Assess the validity and significance of the identified threats,
-    considering potential false positives or common log noise.
+    Review the proposed log parsing plan (which tools like `GrepTool`, `AwkTool` were called and with what parameters) and the identified findings ('analysis_text').
+    **Checklist:**
+    1. Was the log format identified correctly?
+    2. Were the chosen tools (`GrepTool`, `AwkTool`, etc.) appropriate and used efficiently for the parsing task?
+    3. Were the commands/scripts/patterns given to the tools correct?
+    4. Are the findings from the Threat Identifier valid, significant, and directly supported by the (filtered) log data?
+    5. Have potential false positives or common log noise been considered?
   expected_output: >
     A JSON object adhering to the 'AnalysisVerification' Pydantic model, containing:
     - 'valid': boolean (True if the plan and findings are sound, False otherwise).
     - 'feedback': string (Specific, actionable feedback if 'valid' is False, otherwise None or empty).
     Example valid: {"valid": true, "feedback": null}
-    Example invalid: {"valid": false, "feedback": "Feedback: The identified 'SQL Injection attempt' is likely a false positive caused by a common search engine crawler's URL parameters. Re-evaluate the source IP and user agent before concluding it's malicious."}
+    Example invalid: {"valid": false, "feedback": "Feedback: The `AwkTool` script '{print $NF}' was used to find the IP address, but in Apache logs, the IP is the first field ($1), not the last. Re-run `AwkTool` with the correct field specifier."}

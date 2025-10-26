@@ -1,35 +1,50 @@
 analyze_evidence_type_task:
   description: >
-    Examine the CyberSkyline module data ('crawl_data') for a forensics challenge. Determine the
-    type of digital evidence provided (disk image, memory dump, specific file type like JPG/PDF/PCAP)
+    Examine the CyberSkyline module data ('crawl_data') for a forensics challenge.
+    **Action:** Use the `FileTool` on the primary evidence file path provided in 'crawl_data'
+    to determine its type (disk image, memory dump, JPG/PDF/PCAP, etc.).
+    Based on the `FileTool` output and the challenge description, state the evidence type
     and the most likely forensic technique required (e.g., file recovery, steganography, metadata check, memory analysis).
     Incorporate previous feedback ('feedback') if available.
   expected_output: >
-    A clear identification of the evidence type and the primary forensic technique suspected.
-    Example: "Evidence Type: JPEG Image. Suspected Technique: Steganography or EXIF metadata analysis."
+    A clear statement including:
+    1. The output from `FileTool`.
+    2. The identified evidence type.
+    3. The primary forensic technique suspected.
+    Example: "`FileTool` output: 'evidence.jpg: JPEG image data, JFIF standard 1.01'. Evidence Type: JPEG Image. Suspected Technique: Steganography or EXIF metadata analysis."
 
 develop_forensics_plan_task:
   description: >
-    Based on the identified evidence type and technique, create a step-by-step plan to analyze the
-    evidence and find the flag. Recommend specific tools and commands or procedures.
-    Use context from 'crawl_data' and incorporate 'feedback' if provided.
+    Based on the identified evidence type and technique (from the previous task's output),
+    create a step-by-step plan using the available tools (`ExifToolWrapper`, `StringsTool`, `BinwalkTool`, `SteghideTool`, `ForemostTool`, `VolatilityTool`, `TsharkTool`, `AutopsyTool`, `FtkImagerTool`, `InteractiveTerminalTool`)
+    to analyze the evidence and find the flag.
+    **Instructions:**
+    1. Select the most relevant tool(s) for the task.
+    2. For tools that execute commands (`ExifToolWrapper`, `StringsTool`, `BinwalkTool`, `SteghideTool`, `ForemostTool`, `VolatilityTool`, `TsharkTool`, `InteractiveTerminalTool`), specify the exact parameters/commands to use.
+    3. For instructional tools (`AutopsyTool`, `FtkImagerTool`), incorporate their generated instructions into the plan.
+    4. Ensure the plan is logical and sequential.
+    5. Use context from 'crawl_data' (e.g., file paths) and incorporate 'feedback' if provided.
   expected_output: >
-    A detailed, numbered forensic analysis plan.
+    A detailed, numbered forensic analysis plan, specifying which tool to use for each step and the parameters/commands.
     Example:
-    1. Evidence is a JPEG image, potentially containing hidden data.
-    2. Run 'exiftool' on the image to check for interesting metadata (GPS, comments).
-    3. Run 'binwalk -e' on the image to check for embedded files.
-    4. Run 'steghide extract -sf <image_file>' with common passwords (blank, 'password') if steganography is suspected.
-    5. Analyze any extracted files or metadata for the flag.
+    "1. Evidence type identified as JPEG Image, suspected Steganography/Metadata.
+    2. Use `ExifToolWrapper` to check metadata: Call `ExifToolWrapper` with `file_path='evidence.jpg'`.
+    3. Use `BinwalkTool` to check for embedded files: Call `BinwalkTool` with `file_path='evidence.jpg', extract=True`.
+    4. Use `SteghideTool` to attempt extraction: Call `SteghideTool` with `cover_file_path='evidence.jpg', passphrase=''` (try blank first), `output_file_path='extracted_stego.txt'`.
+    5. If data is extracted, use `InteractiveTerminalTool` to view it: Call `InteractiveTerminalTool` with `command='cat extracted_stego.txt'`."
 
 validate_forensics_plan_task:
   description: >
-    Review the proposed forensic analysis plan ('analysis_text'). Verify if the identified evidence
-    type matches the context. Check if the suggested tools and steps are appropriate for the type
-    and suspected technique. Ensure basic checks (like 'strings', 'file', metadata) are considered.
+    Review the proposed forensic analysis plan ('analysis_text').
+    **Checklist:**
+    1. Does the plan correctly address the evidence type identified in the first task?
+    2. Are the selected CrewAI tools (`ExifToolWrapper`, `VolatilityTool`, etc.) appropriate for the task described in each step?
+    3. Are the parameters/commands specified for the executable tools correct and logical?
+    4. Are instructions for GUI tools clear?
+    5. Is the overall sequence of steps efficient and sound forensic practice?
   expected_output: >
     A JSON object adhering to the 'AnalysisVerification' Pydantic model, containing:
     - 'valid': boolean (True if the plan is sound, False otherwise).
     - 'feedback': string (Specific, actionable feedback if 'valid' is False, otherwise None or empty).
     Example valid: {"valid": true, "feedback": null}
-    Example invalid: {"valid": false, "feedback": "Feedback: The evidence is described as a memory dump (.vmem), but the plan suggests using Autopsy, which is for disk images. Recommend using Volatility instead."}
+    Example invalid: {"valid": false, "feedback": "Feedback: The plan suggests using VolatilityTool on a file identified as 'disk_image.dd'. Volatility is for memory images. Recommend providing instructions using AutopsyTool or FtkImagerTool instead for disk images."}

@@ -6,70 +6,89 @@ readme = "README.md"
 requires-python = ">=3.12"
 
 dependencies = [
-    "websockets",
-    "pyaudio",
-    "numpy",
-    "pydantic",
+    # Core & Web
     "requests",
-    "paramiko",
-    "pillow",
     "selenium",
     "beautifulsoup4",
-    "pycparser",
-    "swarm",
-    "tweepy",
-    "openai",
-    "webdriver-manager",
-    "python-facebook-api",
-    "pandas",
+    "aiohttp",
     "httpx",
     "parsel",
+    "websockets", # Keep if needed for other parts, otherwise remove
+
+    # CrewAI & Langchain Ecosystem
+    "crewai[tools]", # Includes crewai and common tools
+    "langchain",
+    "langchain-openai",
+    # Add other specific langchain integrations ONLY if actively used
+    # "langchain-addons",
+    # "langchain-anthropic",
+    # "langchain-autotools",
+    # "langchain-gemini",
+    # "langchain-exa",
+
+    # AI & VLM
+    "openai", # If directly used, otherwise crewai might handle it
+    "google-generativeai", # If directly used
+    "tenacity", # Used by openrouter_api
+
+    # Data Handling & Utilities
+    "pydantic",
+    "numpy", # Keep if needed
+    "pandas", # Keep if needed
+    "pillow",
+    "python-dotenv",
+    "protobuf", # Often a dependency of other google libs
+    "Markdown", # For processing markdown content
+    "markitdown", # Keep if used
+    "PyYAML", # Required by CrewAI for config files
+
+    # GUI Control (New)
+    "mss",
+    "pyautogui",
+
+    # External Service Integrations
+    "slack-sdk",
+    "paramiko", # SSH? Keep if needed
+    "tweepy", # Twitter/X API? Keep if needed
+    "facebook-sdk", # Keep if needed
+    "python-facebook-api", # Keep if needed
+    "wordpresspy", # Keep if needed
+    "pyowm", # OpenWeatherMap? Keep if needed
+
+    # Database (Keep ONLY if used)
     "mysql-connector-python",
     "aiomysql",
-    "google-generativeai",
-    "markitdown",
-    "aiohttp",
-    "google",
-    "protobuf",
-    "tenacity",
-    "facebook-sdk",
-    "pytest",
-    "matplotlib",
-    "seaborn",
-    "Jinja2",
-    "weasyprint",
-    "crewai",
-    "langchain",
-    "langchain-addons",
-    "langchain-openai",
-    "langchain-anthropic",
-    "langchain-autotools",
-    "langchain-gemini",
     "PyMySQL",
-    "pure_eval",
-    "pygame",
-    "wordpresspy",
-    "Markdown",
-    "aiohttp",
-    "crewai",
-    "crewai[tools]",
-    "tenacity",
-    "dotenv",
-    "python-dotenv",
-    "langchain-exa",
-    "exa_py",
-    "unstructured",
-    "pyowm",
-    "tools",
-    "slack-sdk",
-    "pymarkdownlnt",
+
+    # CLI & Drivers
+    "webdriver-manager",
+
+    # Testing & Dev (Consider moving to dev dependencies group if possible)
+    "pytest",
+    "pymarkdownlnt", # Linter, ideally a dev dependency
+
+    # Misc (Review if still needed)
+    "pyaudio",
+    "pycparser",
+    "swarm", # Unknown purpose, review
+    "google", # Usually refers to google-api-python-client, confirm if needed
+    "pure_eval", # Often a debugger dependency
+    "matplotlib", # Plotting, keep if needed
+    "seaborn", # Plotting, keep if needed
+    "Jinja2", # Templating, keep if needed
+    "weasyprint", # PDF generation? Keep if needed
+    "pygame", # Keep if used by game examples
+    "exa_py", # Keep if ExaSearchTool is used
+
 ]
 
 [project.scripts]
-main = "src.main:main"
+# Keep 'main' if you want a direct entry point, but uv run -m src.main is more common
+# main = "src.main:main"
 
 [tool.uv]
-package = true
+# 'package = true' seems non-standard for uv, typically config is under [tool.uv.sources] etc.
+# Review uv documentation if this causes issues. Usually, uv infers from pyproject.toml.
 
 [build-system]
 requires = ["hatchling"]
@@ -77,3 +96,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
+
+# Optional: Add dev dependencies group for linters, formatters, pytest
+# [tool.uv.dev-dependencies]
+# pytest = "*"
+# ruff = "*"
+# mypy = "*"

@@ -1,8 +1,16 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 
-# Import tools if needed later, e.g.:
-# from src.viewers.crews.tools.log_analysis_tools import RegexTool
+# --- Import Log Analysis Tools ---
+from ..tools.log_analysis import (
+    AwkTool,
+    CutTool,
+    GrepTool,
+    RegexTool,
+    SedTool
+)
+# --- Import General Tools ---
+from ..tools.general.terminal_tool import InteractiveTerminalTool
 
 @CrewBase
 class LogAnalysisCrew:
@@ -12,33 +20,49 @@ class LogAnalysisCrew:
 
     @agent
     def log_parser(self) -> Agent:
-        """Agent that plans log parsing."""
+        """Agent that plans and executes log parsing using CLI tools."""
         return Agent(
             config=self.agents_config['log_parser'],
-            # tools=[RegexTool()], # Example Tool
-            verbose=True
+            # --- Assign Tools ---
+            tools=[
+                GrepTool(), # Filtering lines
+                AwkTool(), # Field extraction and complex logic
+                CutTool(), # Simpler field/character extraction
+                SedTool(), # Stream editing/substitution
+                RegexTool(), # Python regex on smaller text blocks
+                InteractiveTerminalTool() # For chaining commands or simple checks
+            ],
+            verbose=True,
+            allow_delegation=False # Parser should execute the plan
         )
 
     @agent
     def threat_identifier(self) -> Agent:
-        """Agent that identifies threats in logs."""
+        """Agent that identifies threats in parsed log data."""
         return Agent(
             config=self.agents_config['threat_identifier'],
-            verbose=True
+            # This agent primarily analyzes text output from the parser
+            tools=[
+                 RegexTool() # May need regex to find patterns in parser output
+            ],
+            verbose=True,
+            allow_delegation=False
         )
 
     @agent
     def soc_validator(self) -> Agent:
-        """Agent that validates the log analysis findings."""
+        """Agent that validates the log analysis plan and findings."""
         return Agent(
             config=self.agents_config['soc_validator'],
-            verbose=True
+            tools=[], # Validator reviews text
+            verbose=True,
+            allow_delegation=False
         )
 
+    # --- Task Definitions ---
     @task
     def parse_logs_task(self) -> Task:
-        """Task to create the log parsing plan."""
-        # This task might receive feedback from the validator on subsequent runs
+        """Task to create and execute the log parsing plan."""
         return Task(
             config=self.tasks_config['parse_logs_task'],
             agent=self.log_parser(),
@@ -48,11 +72,10 @@ class LogAnalysisCrew:
     @task
     def identify_threats_task(self) -> Task:
         """Task to identify threats based on parsed logs or context."""
-        # Depends on the parsing plan (implicitly via context or shared state)
-        # Also receives feedback context
         return Task(
             config=self.tasks_config['identify_threats_task'],
             agent=self.threat_identifier(),
+            # Needs output from parser and feedback from validator
             context=[self.parse_logs_task(), self.validate_log_analysis_task()]
         )
 
@@ -63,7 +86,7 @@ class LogAnalysisCrew:
         return Task(
             config=self.tasks_config['validate_log_analysis_task'],
             agent=self.soc_validator(),
-            # Context needs the combined plan + findings, likely from identify_threats_task
+            # Needs the combined plan/output and findings from identify_threats_task
             context=[self.identify_threats_task()]
         )
 
@@ -74,5 +97,6 @@ class LogAnalysisCrew:
             agents=self.agents,
             tasks=self.tasks,
             process=Process.sequential, # parse -> identify -> validate
+            memory=True, # Enable memory
             verbose=True,
         )

@@ -1,52 +1,70 @@
-from typing import Type, Any, Optional
+import logging
+from typing import Type, Any, Optional, List
 from pydantic import BaseModel, Field
-from crewai.tools import BaseTool
+from crewai_tools import BaseTool
 
-# --- Input Schema (Optional) ---
-# Define parameters the LLM should provide to this tool.
-# Example:
-# class OnlineSolverToolToolInput(BaseModel):
-#     target_ip: str = Field(..., description="The IP address to scan")
-#     ports: Optional[str] = Field(None, description="Specific ports to scan (e.g., '80,443')")
+logger = logging.getLogger(__name__)
 
-class OnlineSolverToolTool(BaseTool):
-    name: str = "OnlineSolverToolTool"
-    description: str = "Description for OnlineSolverToolTool. Explain what it does and when to use it."
-    # args_schema: Type[BaseModel] = OnlineSolverToolToolInput # Uncomment if Input Schema is defined
+# --- Input Schema ---
+class OnlineSolverToolInput(BaseModel):
+    """Input schema for OnlineSolverTool."""
+    cipher_type: str = Field(..., description="The suspected type of cipher or encoding (e.g., 'Vigenere', 'Caesar', 'Morse Code', 'Baconian').")
+    input_data_description: str = Field(..., description="Describe or provide a snippet of the input data (ciphertext, encoded text).")
+    known_parameters: Optional[str] = Field(None, description="Any known parameters like a key, shift amount, or alphabet.")
 
-    def _run(self, **kwargs: Any) -> str:
+class OnlineSolverTool(BaseTool):
+    name: str = "Online Crypto Solver Instructions"
+    description: str = (
+        "Suggests useful online cryptography solver websites (like dcode.fr, Boxentriq, Cryptii) "
+        "for various classical ciphers, encodings, and analysis techniques. "
+        "Specify the suspected cipher type and provide a description or snippet of the data."
+    )
+    args_schema: Type[BaseModel] = OnlineSolverToolInput
+
+    def _run(self, cipher_type: str, input_data_description: str, known_parameters: Optional[str] = None) -> str:
         """
-        The main execution method for the tool.
-        Use kwargs to access arguments defined in the Input Schema.
+        Returns links and instructions for using online crypto solvers.
         """
-        # --- Tool Logic Implementation ---
-        # 1. Validate/Process Arguments from kwargs
-        #    Example: target = kwargs.get('target_ip')
-        # 2. Execute the underlying tool/command (e.g., using subprocess)
-        # 3. Parse the output
-        # 4. Return a descriptive string result for the LLM
+        logger.info(f"Generating online solver instructions for cipher: {cipher_type}")
 
-        argument_str = ", ".join(f"{key}='{value}'" for key, value in kwargs.items())
-        print(f"Running ${self.name} with arguments: {argument_str}")
+        # Common useful solver sites
+        solvers = {
+            "dcode.fr": "https://www.dcode.fr/en (Comprehensive collection of many ciphers and tools)",
+            "Boxentriq": "https://www.boxentriq.com/code-breaking (Focus on classical ciphers)",
+            "Cryptii": "https://cryptii.com/ (Modular encoding/decoding/encryption)"
+        }
 
-        # Replace with actual tool implementation (e.g., call subprocess)
-        # import subprocess
-        # try:
-        #    # Example: Run nmap
-        #    # command = ["nmap", "-p", kwargs.get('ports', '-'), kwargs['target_ip']]
-        #    # result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=60)
-        #    # return f"Nmap scan completed:\n{result.stdout}"
-        #    return f"Result from ${self.name} (Placeholder). Args: {argument_str}"
-        # except Exception as e:
-        #    return f"Error running ${self.name}: {e}"
-        return f"Result from ${self.name} (Placeholder). Args: {argument_str}"
+        instructions = f"""
+        **Instructions for using Online Crypto Solvers for '{cipher_type}':**
 
+        **Input Data Hint:** {input_data_description}
+        **Known Parameters:** {known_parameters or 'None'}
 
-# Example usage (for local testing)
+        **Recommended Online Tools:**
+        * **dcode.fr:** {solvers['dcode.fr']} - Often has auto-detection features. Try searching for '{cipher_type}' on their site.
+        * **Boxentriq:** {solvers['Boxentriq']} - Good for classical ciphers. Look for a '{cipher_type}' solver.
+        * **Cryptii:** {solvers['Cryptii']} - Allows building pipelines for multi-stage encoding/decoding.
+
+        **General Steps:**
+        1.  **Visit Solver Site:** Navigate to one of the recommended sites (dcode.fr is often a good starting point).
+        2.  **Find the Tool:** Locate the specific solver or analyzer for '{cipher_type}'. Use the site's search function if needed.
+        3.  **Input Data:** Paste the ciphertext or encoded data into the appropriate input field.
+        4.  **Provide Parameters:** If you know parameters (like a key for Vigenere, a shift for Caesar), enter them into the designated fields.
+        5.  **Execute:** Click the 'Decrypt', 'Decode', 'Solve', or 'Analyze' button.
+        6.  **Examine Output:** Check the results for meaningful plaintext or the flag. If unsuccessful, try different parameters or a different solver.
+
+        **Note:** Direct interaction with these websites is not available. Use a web browser to access them and follow these steps as part of your analysis plan.
+        """
+
+        return instructions.strip()
+
+# Example usage
 if __name__ == "__main__":
-    tool = OnlineSolverToolTool()
-    # Example arguments based on a potential Input Schema:
-    # result = tool.run(target_ip="127.0.0.1", ports="80")
-    result = tool.run(test_arg="example") # Example without schema
-    print(result)
-
+    logging.basicConfig(level=logging.INFO)
+    tool = OnlineSolverTool()
+    print("--- Test 1: Vigenere ---")
+    result1 = tool.run(cipher_type="Vigenere", input_data_description="Lipps Asvph", known_parameters="Key might be 'SECRET'")
+    print(result1)
+    print("\n--- Test 2: Base64 ---")
+    result2 = tool.run(cipher_type="Base64", input_data_description="SGVsbG8gQ3Jld0FJ")
+    print(result2)

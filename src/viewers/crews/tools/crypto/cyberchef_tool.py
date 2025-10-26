@@ -1,52 +1,82 @@
+import logging
 from typing import Type, Any, Optional
 from pydantic import BaseModel, Field
-from crewai.tools import BaseTool
+from crewai_tools import BaseTool
 
-# --- Input Schema (Optional) ---
-# Define parameters the LLM should provide to this tool.
-# Example:
-# class CyberchefToolToolInput(BaseModel):
-#     target_ip: str = Field(..., description="The IP address to scan")
-#     ports: Optional[str] = Field(None, description="Specific ports to scan (e.g., '80,443')")
+logger = logging.getLogger(__name__)
 
-class CyberchefToolTool(BaseTool):
-    name: str = "CyberchefToolTool"
-    description: str = "Description for CyberchefToolTool. Explain what it does and when to use it."
-    # args_schema: Type[BaseModel] = CyberchefToolToolInput # Uncomment if Input Schema is defined
+# --- Input Schema ---
+class CyberchefToolInput(BaseModel):
+    """Input schema for CyberchefTool."""
+    task_description: str = Field(..., description="Describe the cryptographic task to perform (e.g., 'Decode Base64', 'Decrypt Vigenere with key SECRET', 'Analyze AES ciphertext').")
+    input_data_description: str = Field(..., description="Describe or provide a snippet of the input data (ciphertext, encoded text).")
+    recipe_suggestion: Optional[str] = Field(None, description="Optional: Suggest a specific CyberChef recipe or sequence of operations.")
 
-    def _run(self, **kwargs: Any) -> str:
+class CyberchefTool(BaseTool):
+    name: str = "CyberChef Instructions"
+    description: str = (
+        "Provides instructions and a link for using CyberChef (The Cyber Swiss Army Knife - a web app for data manipulation) "
+        "to perform various cryptographic operations like encoding/decoding, encryption/decryption, hashing, etc. "
+        "Describe the task, the input data, and optionally suggest a recipe."
+    )
+    args_schema: Type[BaseModel] = CyberchefToolInput
+    cyberchef_url: str = "https://gchq.github.io/CyberChef/"
+
+    def _run(self, task_description: str, input_data_description: str, recipe_suggestion: Optional[str] = None) -> str:
         """
-        The main execution method for the tool.
-        Use kwargs to access arguments defined in the Input Schema.
+        Returns instructions for using CyberChef.
         """
-        # --- Tool Logic Implementation ---
-        # 1. Validate/Process Arguments from kwargs
-        #    Example: target = kwargs.get('target_ip')
-        # 2. Execute the underlying tool/command (e.g., using subprocess)
-        # 3. Parse the output
-        # 4. Return a descriptive string result for the LLM
+        logger.info(f"Generating CyberChef instructions for task: {task_description}")
 
-        argument_str = ", ".join(f"{key}='{value}'" for key, value in kwargs.items())
-        print(f"Running ${self.name} with arguments: {argument_str}")
+        instructions = f"""
+        **Instructions for using CyberChef:** ({self.cyberchef_url})
 
-        # Replace with actual tool implementation (e.g., call subprocess)
-        # import subprocess
-        # try:
-        #    # Example: Run nmap
-        #    # command = ["nmap", "-p", kwargs.get('ports', '-'), kwargs['target_ip']]
-        #    # result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=60)
-        #    # return f"Nmap scan completed:\n{result.stdout}"
-        #    return f"Result from ${self.name} (Placeholder). Args: {argument_str}"
-        # except Exception as e:
-        #    return f"Error running ${self.name}: {e}"
-        return f"Result from ${self.name} (Placeholder). Args: {argument_str}"
+        **Task:** {task_description}
+        **Input Data Hint:** {input_data_description}
 
+        **Steps:**
+        1.  **Open CyberChef:** Navigate to {self.cyberchef_url} in a web browser. 
+        2.  **Input Data:** Paste the relevant input data (ciphertext, encoded text, etc.) into the top-right 'Input' panel.
+        3.  **Build Recipe:** Drag and drop operations from the 'Operations' list (left panel) into the middle 'Recipe' panel.
+        4.  **Configure Operations:** Adjust parameters for each operation in the 'Recipe' panel (e.g., enter keys, select modes, specify formats).
+        5.  **View Output:** The result will appear in the bottom-right 'Output' panel.
 
-# Example usage (for local testing)
+        **Suggested Recipe/Operations (based on task):**
+        """
+
+        if recipe_suggestion:
+            instructions += f"* {recipe_suggestion}\n"
+        else:
+            # Provide general suggestions based on keywords
+            task_lower = task_description.lower()
+            if "base64" in task_lower and "decode" in task_lower:
+                instructions += "* Try dragging 'From Base64' into the Recipe.\n"
+            elif "base64" in task_lower and "encode" in task_lower:
+                 instructions += "* Try dragging 'To Base64' into the Recipe.\n"
+            elif "hex" in task_lower and "decode" in task_lower:
+                 instructions += "* Try dragging 'From Hex' into the Recipe.\n"
+            elif "rot13" in task_lower:
+                 instructions += "* Try dragging 'ROT13' into the Recipe.\n"
+            elif "caesar" in task_lower:
+                 instructions += "* Try dragging 'Caesar Box Cipher' or 'ROT13' (if shift is 13) into the Recipe. Adjust the shift amount.\n"
+            elif "vigenere" in task_lower and "decrypt" in task_lower:
+                 instructions += "* Try dragging 'Vigenere Decode' into the Recipe. Input the key if known, or try the 'Analyze Key Length' operation first.\n"
+            elif "aes" in task_lower and "decrypt" in task_lower:
+                 instructions += "* Try dragging 'AES Decrypt' into the Recipe. You will need the Key, IV (if applicable), and Mode (e.g., CBC, ECB).\n"
+            else:
+                instructions += "* Search the 'Operations' list for relevant keywords (e.g., 'decrypt', 'decode', 'hash', 'xor').\n"
+
+        instructions += "\n**Note:** Experiment with different operations and parameters in CyberChef. Direct execution is not available through this interface."
+
+        return instructions.strip()
+
+# Example usage
 if __name__ == "__main__":
-    tool = CyberchefToolTool()
-    # Example arguments based on a potential Input Schema:
-    # result = tool.run(target_ip="127.0.0.1", ports="80")
-    result = tool.run(test_arg="example") # Example without schema
-    print(result)
-
+    logging.basicConfig(level=logging.INFO)
+    tool = CyberchefTool()
+    print("--- Test 1: Base64 Decode ---")
+    result1 = tool.run(task_description="Decode Base64 text", input_data_description="SGVsbG8gQ3Jld0FJ")
+    print(result1)
+    print("\n--- Test 2: Vigenere with suggestion ---")
+    result2 = tool.run(task_description="Decrypt Vigenere", input_data_description="Lipps Asvph", recipe_suggestion="Use 'Vigenere Decode' with key 'SECRET'")
+    print(result2)

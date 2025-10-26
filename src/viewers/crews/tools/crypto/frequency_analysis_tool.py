@@ -1,52 +1,88 @@
-from typing import Type, Any, Optional
+import logging
+from typing import Type, Any
 from pydantic import BaseModel, Field
-from crewai.tools import BaseTool
+from crewai_tools import BaseTool
+from collections import Counter
+import string
 
-# --- Input Schema (Optional) ---
-# Define parameters the LLM should provide to this tool.
-# Example:
-# class FrequencyAnalysisToolToolInput(BaseModel):
-#     target_ip: str = Field(..., description="The IP address to scan")
-#     ports: Optional[str] = Field(None, description="Specific ports to scan (e.g., '80,443')")
+logger = logging.getLogger(__name__)
 
-class FrequencyAnalysisToolTool(BaseTool):
-    name: str = "FrequencyAnalysisToolTool"
-    description: str = "Description for FrequencyAnalysisToolTool. Explain what it does and when to use it."
-    # args_schema: Type[BaseModel] = FrequencyAnalysisToolToolInput # Uncomment if Input Schema is defined
+# --- Input Schema ---
+class FrequencyAnalysisToolInput(BaseModel):
+    """Input schema for FrequencyAnalysisTool."""
+    text: str = Field(..., description="The text (ciphertext) to analyze.")
+    ignore_case: bool = Field(True, description="Whether to ignore case (treat 'a' and 'A' as the same).")
+    only_letters: bool = Field(True, description="Whether to only count alphabetic characters.")
 
-    def _run(self, **kwargs: Any) -> str:
+class FrequencyAnalysisTool(BaseTool):
+    name: str = "Character Frequency Analysis"
+    description: str = (
+        "Calculates the frequency of each character in a given text. "
+        "Useful for analyzing ciphertext to help identify classical substitution ciphers "
+        "(like Caesar, Vigenere) by comparing frequencies to standard English letter frequencies."
+    )
+    args_schema: Type[BaseModel] = FrequencyAnalysisToolInput
+
+    def _run(self, text: str, ignore_case: bool = True, only_letters: bool = True) -> str:
         """
-        The main execution method for the tool.
-        Use kwargs to access arguments defined in the Input Schema.
+        Performs frequency analysis on the input text.
         """
-        # --- Tool Logic Implementation ---
-        # 1. Validate/Process Arguments from kwargs
-        #    Example: target = kwargs.get('target_ip')
-        # 2. Execute the underlying tool/command (e.g., using subprocess)
-        # 3. Parse the output
-        # 4. Return a descriptive string result for the LLM
+        if not text:
+            return "Error: Input text cannot be empty."
 
-        argument_str = ", ".join(f"{key}='{value}'" for key, value in kwargs.items())
-        print(f"Running ${self.name} with arguments: {argument_str}")
+        logger.info(f"Performing frequency analysis (ignore_case={ignore_case}, only_letters={only_letters})...")
 
-        # Replace with actual tool implementation (e.g., call subprocess)
-        # import subprocess
-        # try:
-        #    # Example: Run nmap
-        #    # command = ["nmap", "-p", kwargs.get('ports', '-'), kwargs['target_ip']]
-        #    # result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=60)
-        #    # return f"Nmap scan completed:\n{result.stdout}"
-        #    return f"Result from ${self.name} (Placeholder). Args: {argument_str}"
-        # except Exception as e:
-        #    return f"Error running ${self.name}: {e}"
-        return f"Result from ${self.name} (Placeholder). Args: {argument_str}"
+        processed_text = text
+        if ignore_case:
+            processed_text = processed_text.lower()
+
+        if only_letters:
+            processed_text = ''.join(filter(str.isalpha, processed_text))
+
+        if not processed_text:
+             return "Error: No characters left to analyze after filtering (check input and 'only_letters' flag)."
+
+        # Calculate frequencies
+        counts = Counter(processed_text)
+        total_chars = len(processed_text)
+        frequencies = {char: count / total_chars for char, count in counts.items()}
+
+        # Sort by frequency (most common first)
+        sorted_freq = sorted(frequencies.items(), key=lambda item: item[1], reverse=True)
+
+        # Format output
+        output = f"Frequency Analysis Results (Total relevant chars: {total_chars}):\n"
+        output += "Char | Count | Frequency (%)\n"
+        output += "-------------------------\n"
+        for char, freq in sorted_freq:
+            count = counts[char]
+            output += f"  {char}  |  {count:<4} |  {freq * 100:.2f}%\n"
+
+        # Add standard English frequencies for comparison if only_letters and ignore_case
+        if only_letters and ignore_case:
+             # Approximate frequencies
+             english_freq = {
+                 'e': 12.70, 't': 9.06, 'a': 8.17, 'o': 7.51, 'i': 6.97, 'n': 6.75,
+                 's': 6.33, 'h': 6.09, 'r': 5.99, 'd': 4.25, 'l': 4.03, 'c': 2.78,
+                 'u': 2.76, 'm': 2.41, 'w': 2.36, 'f': 2.23, 'g': 2.02, 'y': 1.97,
+                 'p': 1.93, 'b': 1.29, 'v': 0.98, 'k': 0.77, 'j': 0.15, 'x': 0.15,
+                 'q': 0.10, 'z': 0.07
+             }
+             output += "\nStandard English Letter Frequencies (%):\n"
+             output += ", ".join([f"{k}: {v:.2f}" for k, v in english_freq.items()]) + "\n"
 
 
-# Example usage (for local testing)
+        logger.info("Frequency analysis complete.")
+        return output.strip()
+
+# Example usage
 if __name__ == "__main__":
-    tool = FrequencyAnalysisToolTool()
-    # Example arguments based on a potential Input Schema:
-    # result = tool.run(target_ip="127.0.0.1", ports="80")
-    result = tool.run(test_arg="example") # Example without schema
+    logging.basicConfig(level=logging.INFO)
+    tool = FrequencyAnalysisTool()
+    test_text = "Ebiil, Tloia! This is a simple test text for frequency analysis. E is the most common letter."
+    print(f"--- Analyzing: '{test_text}' ---")
+    result = tool.run(text=test_text)
     print(result)
-
+    print("\n--- Analyzing (case-sensitive, all chars) ---")
+    result_cs_all = tool.run(text=test_text, ignore_case=False, only_letters=False)
+    print(result_cs_all)

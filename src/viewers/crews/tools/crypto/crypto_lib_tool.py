@@ -1,52 +1,120 @@
+import base64
+import binascii
+import logging
 from typing import Type, Any, Optional
 from pydantic import BaseModel, Field
-from crewai.tools import BaseTool
+from crewai_tools import BaseTool
 
-# --- Input Schema (Optional) ---
-# Define parameters the LLM should provide to this tool.
-# Example:
-# class CryptoLibToolToolInput(BaseModel):
-#     target_ip: str = Field(..., description="The IP address to scan")
-#     ports: Optional[str] = Field(None, description="Specific ports to scan (e.g., '80,443')")
+logger = logging.getLogger(__name__)
 
-class CryptoLibToolTool(BaseTool):
-    name: str = "CryptoLibToolTool"
-    description: str = "Description for CryptoLibToolTool. Explain what it does and when to use it."
-    # args_schema: Type[BaseModel] = CryptoLibToolToolInput # Uncomment if Input Schema is defined
+# --- Input Schema ---
+class CryptoLibToolInput(BaseModel):
+    """Input schema for CryptoLibTool."""
+    mode: str = Field(..., description="The operation mode: 'encode' or 'decode'.")
+    format: str = Field(..., description="The encoding format: 'base64' or 'hex'.")
+    input_data: str = Field(..., description="The string data to encode or decode.")
 
-    def _run(self, **kwargs: Any) -> str:
+class CryptoLibTool(BaseTool):
+    name: str = "Python Encoding/Decoding"
+    description: str = (
+        "Uses Python libraries to encode or decode data using common formats like Base64 and Hexadecimal. "
+        "Specify the mode ('encode'/'decode'), format ('base64'/'hex'), and the input data string."
+    )
+    args_schema: Type[BaseModel] = CryptoLibToolInput
+
+    def _run(self, mode: str, format: str, input_data: str) -> str:
         """
-        The main execution method for the tool.
-        Use kwargs to access arguments defined in the Input Schema.
+        Performs encoding or decoding using Python libraries.
         """
-        # --- Tool Logic Implementation ---
-        # 1. Validate/Process Arguments from kwargs
-        #    Example: target = kwargs.get('target_ip')
-        # 2. Execute the underlying tool/command (e.g., using subprocess)
-        # 3. Parse the output
-        # 4. Return a descriptive string result for the LLM
+        mode = mode.lower()
+        format = format.lower()
+        logger.info(f"Running Python crypto: mode='{mode}', format='{format}'")
 
-        argument_str = ", ".join(f"{key}='{value}'" for key, value in kwargs.items())
-        print(f"Running ${self.name} with arguments: {argument_str}")
+        if mode not in ['encode', 'decode']:
+            return "Error: Invalid mode. Use 'encode' or 'decode'."
+        if format not in ['base64', 'hex']:
+            return "Error: Invalid format. Use 'base64' or 'hex'."
+        if not input_data:
+             return "Error: Input data cannot be empty."
 
-        # Replace with actual tool implementation (e.g., call subprocess)
-        # import subprocess
-        # try:
-        #    # Example: Run nmap
-        #    # command = ["nmap", "-p", kwargs.get('ports', '-'), kwargs['target_ip']]
-        #    # result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=60)
-        #    # return f"Nmap scan completed:\n{result.stdout}"
-        #    return f"Result from ${self.name} (Placeholder). Args: {argument_str}"
-        # except Exception as e:
-        #    return f"Error running ${self.name}: {e}"
-        return f"Result from ${self.name} (Placeholder). Args: {argument_str}"
+        try:
+            if format == 'base64':
+                if mode == 'encode':
+                    # Assume input is UTF-8 string
+                    input_bytes = input_data.encode('utf-8')
+                    encoded_bytes = base64.b64encode(input_bytes)
+                    result = encoded_bytes.decode('utf-8')
+                    return f"Base64 Encoded: {result}"
+                else: # decode
+                    # Input is Base64 string
+                    decoded_bytes = base64.b64decode(input_data)
+                    # Try decoding as UTF-8, fallback to hex representation of bytes
+                    try:
+                         result = decoded_bytes.decode('utf-8')
+                         return f"Base64 Decoded (UTF-8): {result}"
+                    except UnicodeDecodeError:
+                         result_hex = binascii.hexlify(decoded_bytes).decode('utf-8')
+                         logger.warning("Base64 decoded data was not valid UTF-8, returning hex.")
+                         return f"Base64 Decoded (Bytes as Hex): {result_hex}"
+
+            elif format == 'hex':
+                if mode == 'encode':
+                    # Assume input is UTF-8 string
+                    input_bytes = input_data.encode('utf-8')
+                    encoded_hex = binascii.hexlify(input_bytes)
+                    result = encoded_hex.decode('utf-8')
+                    return f"Hex Encoded: {result}"
+                else: # decode
+                    # Input is Hex string
+                    decoded_bytes = binascii.unhexlify(input_data)
+                     # Try decoding as UTF-8, fallback to hex representation of bytes (less useful here)
+                    try:
+                         result = decoded_bytes.decode('utf-8')
+                         return f"Hex Decoded (UTF-8): {result}"
+                    except UnicodeDecodeError:
+                         # For hex->bytes, just showing the bytes again isn't very helpful
+                         # Maybe return raw byte representation?
+                         logger.warning("Hex decoded data was not valid UTF-8.")
+                         # Return raw bytes might confuse LLM, return error/note?
+                         return f"Hex Decoded (Resulting bytes were not valid UTF-8)"
 
 
-# Example usage (for local testing)
+            # Should not reach here if format is validated
+            return "Error: Unexpected format encountered."
+
+        except binascii.Error as e:
+            logger.error(f"Hex/Base64 processing error: {e}", exc_info=True)
+            return f"Error during {format} {mode}: Invalid input data. Details: {e}"
+        except Exception as e:
+            logger.error(f"An unexpected error occurred in CryptoLibTool: {e}", exc_info=True)
+            return f"An unexpected error occurred: {e}"
+
+
+# Example usage
 if __name__ == "__main__":
-    tool = CryptoLibToolTool()
-    # Example arguments based on a potential Input Schema:
-    # result = tool.run(target_ip="127.0.0.1", ports="80")
-    result = tool.run(test_arg="example") # Example without schema
-    print(result)
+    logging.basicConfig(level=logging.INFO)
+    tool = CryptoLibTool()
 
+    print("\n--- Test 1: Base64 Encode ---")
+    result1 = tool.run(mode="encode", format="base64", input_data="Hello CrewAI!")
+    print(result1) # Should be SGVsbG8gQ3Jld0FJIQ==
+
+    print("\n--- Test 2: Base64 Decode ---")
+    result2 = tool.run(mode="decode", format="base64", input_data="SGVsbG8gQ3Jld0FJIQ==")
+    print(result2) # Should be Hello CrewAI!
+
+    print("\n--- Test 3: Hex Encode ---")
+    result3 = tool.run(mode="encode", format="hex", input_data="Secret")
+    print(result3) # Should be 536563726574
+
+    print("\n--- Test 4: Hex Decode ---")
+    result4 = tool.run(mode="decode", format="hex", input_data="536563726574")
+    print(result4) # Should be Secret
+
+    print("\n--- Test 5: Invalid Base64 Decode ---")
+    result5 = tool.run(mode="decode", format="base64", input_data="Not Valid Base64!!")
+    print(result5)
+
+    print("\n--- Test 6: Invalid Hex Decode ---")
+    result6 = tool.run(mode="decode", format="hex", input_data="NotValidHexG")
+    print(result6)
